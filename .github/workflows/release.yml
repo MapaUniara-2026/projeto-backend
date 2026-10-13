@@ -1,0 +1,56 @@
+# Versionamento: roda quando um PR é mergeado em qa ou main.
+#  - qa   -> tag de release candidate (ex.: v1.2.0-rc.15)
+#  - main -> tag oficial (ex.: v1.2.0) + GitHub Release com as notas geradas dos PRs
+# O deploy em si é feito pela Vercel (integração com o GitHub).
+name: Release
+
+on:
+  push:
+    branches: [qa, main]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  tag:
+    name: Criar tag
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Ler versão
+        id: versao
+        run: echo "valor=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Configurar git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Tag de release candidate (QA)
+        if: github.ref_name == 'qa'
+        run: |
+          TAG="v${{ steps.versao.outputs.valor }}-rc.${{ github.run_number }}"
+          git tag -a "$TAG" -m "Release candidate $TAG (QA)"
+          git push origin "$TAG"
+          echo "Criada $TAG"
+
+      - name: Tag oficial e Release (PRD)
+        if: github.ref_name == 'main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="v${{ steps.versao.outputs.valor }}"
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "::warning::Tag $TAG já existe, pulando release."
+            exit 0
+          fi
+          git tag -a "$TAG" -m "Release $TAG"
+          git push origin "$TAG"
+          gh release create "$TAG" --title "$TAG" --generate-notes

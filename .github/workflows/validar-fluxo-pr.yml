@@ -1,0 +1,57 @@
+# Garante o fluxo de promoção entre ambientes:
+#   feature/*, fix/*, hotfix/*, chore/*, docs/*  ──PR──▶  dev  ──PR──▶  qa  ──PR──▶  main (PRD)
+# Qualquer PR fora desse caminho falha e não pode ser mergeado.
+name: Validar fluxo do PR
+
+on:
+  pull_request:
+    branches: [dev, qa, main]
+    types: [opened, edited, reopened, synchronize]
+
+jobs:
+  validar-branch-origem:
+    name: Validar branch de origem
+    runs-on: ubuntu-latest
+    steps:
+      - name: Conferir origem -> destino
+        env:
+          ORIGEM: ${{ github.head_ref }}
+          DESTINO: ${{ github.base_ref }}
+        run: |
+          echo "PR: $ORIGEM -> $DESTINO"
+          case "$DESTINO" in
+            dev)
+              if [[ ! "$ORIGEM" =~ ^(feature|fix|hotfix|chore|docs|refactor|test)/.+ ]]; then
+                echo "::error::PR para 'dev' deve vir de uma branch feature/*, fix/*, hotfix/*, chore/*, docs/*, refactor/* ou test/* (recebido: '$ORIGEM')."
+                exit 1
+              fi ;;
+            qa)
+              if [[ "$ORIGEM" != "dev" ]]; then
+                echo "::error::PR para 'qa' só pode vir da branch 'dev' (recebido: '$ORIGEM')."
+                exit 1
+              fi ;;
+            main)
+              if [[ "$ORIGEM" != "qa" ]]; then
+                echo "::error::PR para 'main' (PRD) só pode vir da branch 'qa' (recebido: '$ORIGEM')."
+                exit 1
+              fi ;;
+          esac
+          echo "Fluxo válido ✅"
+
+  validar-versao:
+    name: Validar versão (somente PR para PRD)
+    if: github.base_ref == 'main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verificar se a versão já foi publicada
+        run: |
+          VERSAO=$(node -p "require('./package.json').version")
+          echo "Versão do PR: v$VERSAO"
+          if git rev-parse "v$VERSAO" >/dev/null 2>&1; then
+            echo "::error::A tag v$VERSAO já existe. Suba a versão em uma branch de feature (npm run release:patch | release:minor | release:major) antes de promover para PRD."
+            exit 1
+          fi
+          echo "Versão nova ✅"

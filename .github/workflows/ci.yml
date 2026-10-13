@@ -1,0 +1,58 @@
+# Roda em todo PR para dev, qa ou main. O nome do job ("Back-end") é um "required check"
+# da proteção das branches — não renomeie sem atualizar scripts/setup-github.sh.
+name: CI
+
+on:
+  pull_request:
+    branches: [dev, qa, main]
+
+jobs:
+  backend:
+    name: Back-end
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: projeto
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      APP_ENV: CI
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/projeto?schema=ci
+      DIRECT_URL: postgresql://postgres:postgres@localhost:5432/projeto?schema=ci
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci # também roda "prisma generate" (postinstall)
+      - run: npm run lint
+
+      - name: Aplicar migrações num banco limpo
+        run: npx prisma migrate deploy
+
+      - name: Conferir se o schema.prisma tem migração correspondente
+        run: |
+          set +e
+          npx prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma --exit-code
+          CODIGO=$?
+          if [ "$CODIGO" = "2" ]; then
+            echo "::error::O schema.prisma foi alterado mas a migração não foi criada. Rode 'npm run db:migrate -- --name descricao' e commite a pasta prisma/migrations."
+          fi
+          exit $CODIGO
+
+      - name: Smoke test da API
+        run: |
+          PORT=3000 node src/local.js &
+          for i in $(seq 1 20); do
+            curl -sf http://localhost:3000/api/health && exit 0
+            sleep 1
+          done
+          echo "::error::A API não respondeu em /api/health"
+          exit 1

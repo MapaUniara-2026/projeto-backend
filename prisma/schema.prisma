@@ -1,0 +1,102 @@
+// Modelo inicial do banco — PONTO DE PARTIDA.
+// Ajuste para refletir o DER aprovado pelo time de Modelagem.
+//
+// Integridade (RNF11):
+//  - Toda relação é uma foreign key de verdade no PostgreSQL.
+//  - onDelete: Restrict impede apagar um curso/professor/sala que ainda está em uso.
+//  - @@unique impede duplicidades (ex.: duas turmas na mesma sala, mesmo dia e horário).
+//
+// Depois de alterar este arquivo:  npm run db:migrate -- --name descricao_da_mudanca
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Curso {
+  id     Int     @id @default(autoincrement())
+  codigo String  @unique @db.VarChar(20)
+  nome   String  @db.VarChar(120)
+  turmas Turma[]
+
+  criadoEm     DateTime @default(now()) @map("criado_em")
+  atualizadoEm DateTime @updatedAt @map("atualizado_em")
+
+  @@map("cursos")
+}
+
+model Professor {
+  id     Int     @id @default(autoincrement())
+  nome   String  @db.VarChar(120)
+  email  String  @unique @db.VarChar(160)
+  turmas Turma[]
+
+  criadoEm     DateTime @default(now()) @map("criado_em")
+  atualizadoEm DateTime @updatedAt @map("atualizado_em")
+
+  @@map("professores")
+}
+
+model Sala {
+  id         Int       @id @default(autoincrement())
+  codigo     String    @unique @db.VarChar(20) // ex.: "B-101"
+  bloco      String?   @db.VarChar(20)
+  capacidade Int
+  horarios   Horario[]
+
+  criadoEm     DateTime @default(now()) @map("criado_em")
+  atualizadoEm DateTime @updatedAt @map("atualizado_em")
+
+  @@map("salas")
+}
+
+model Turma {
+  id          Int       @id @default(autoincrement())
+  codigo      String    @db.VarChar(20)
+  semestre    String    @db.VarChar(6) // ex.: "2026.2"
+  cursoId     Int       @map("curso_id")
+  professorId Int       @map("professor_id")
+  curso       Curso     @relation(fields: [cursoId], references: [id], onDelete: Restrict)
+  professor   Professor @relation(fields: [professorId], references: [id], onDelete: Restrict)
+  horarios    Horario[]
+
+  criadoEm     DateTime @default(now()) @map("criado_em")
+  atualizadoEm DateTime @updatedAt @map("atualizado_em")
+
+  @@unique([codigo, semestre])
+  @@map("turmas")
+}
+
+enum DiaSemana {
+  SEGUNDA
+  TERCA
+  QUARTA
+  QUINTA
+  SEXTA
+  SABADO
+
+  @@map("dia_semana")
+}
+
+model Horario {
+  id         Int       @id @default(autoincrement())
+  turmaId    Int       @map("turma_id")
+  salaId     Int       @map("sala_id")
+  diaSemana  DiaSemana @map("dia_semana")
+  horaInicio String    @map("hora_inicio") @db.Char(5) // "HH:MM"
+  horaFim    String    @map("hora_fim") @db.Char(5) // "HH:MM"
+  turma      Turma     @relation(fields: [turmaId], references: [id], onDelete: Cascade)
+  sala       Sala      @relation(fields: [salaId], references: [id], onDelete: Restrict)
+
+  criadoEm     DateTime @default(now()) @map("criado_em")
+  atualizadoEm DateTime @updatedAt @map("atualizado_em")
+
+  // Uma sala não pode receber duas turmas no mesmo dia e horário de início,
+  // e uma turma não pode estar em dois lugares ao mesmo tempo.
+  @@unique([salaId, diaSemana, horaInicio])
+  @@unique([turmaId, diaSemana, horaInicio])
+  @@map("horarios")
+}
