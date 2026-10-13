@@ -1,7 +1,4 @@
-# Define quem revisa cada parte do código.
-# Para ativar: crie os times na organização (com estes nomes) e descomente.
-# Depois marque "Require review from Code Owners" nas branches protegidas.
-
-# *              @MapaUniara-2026/backend
-# /prisma/       @MapaUniara-2026/banco-de-dados
-# /.github/      @MapaUniara-2026/arquitetura
+# Quem revisa cada parte do código. A última regra que casar com o arquivo vence.
+*              @MapaUniara-2026/backend
+/prisma/       @MapaUniara-2026/dados
+/.github/      @MapaUniara-2026/arquitetura
