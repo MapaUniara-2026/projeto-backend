@@ -3,7 +3,7 @@
 // (nunca omitido), listas vazias saem como [] e horas saem como "HH:MM".
 // Para cada mapper existe um "select" com exatamente as colunas que ele usa.
 // Horas: use formatarHora (src/lib/horario.js) nos mappers de aulas/horários.
-
+import { formatarHora } from './horario.js'
 export const selectCurso = { id: true, codigo: true, nome: true }
 
 export const cursoResposta = (curso) => ({
@@ -48,3 +48,17 @@ export const fotosResposta = (fotos) =>
   (fotos ?? [])
     .filter((foto) => typeof foto?.url === 'string' && foto.url.trim())
     .map((foto) => ({ url: foto.url, descricao: foto.descricao ?? null }))
+
+// wakim-horarios: contrato de resposta para os registros de horário.
+export const selectHorario = {
+  id: true, turmaId: true, salaId: true, diaSemana: true, horaInicio: true, horaFim: true,
+}
+
+export const horarioResposta = (horario) => ({
+  id: horario.id,
+  turmaId: horario.turmaId,
+  salaId: horario.salaId,
+  diaSemana: horario.diaSemana,
+  horaInicio: formatarHora(horario.horaInicio),
+  horaFim: formatarHora(horario.horaFim),
+})
