@@ -84,13 +84,26 @@ prisma/
 src/
 ├── app.js               # configura o Express (usado pela Vercel)
 ├── local.js             # sobe o servidor localmente
-├── lib/prisma.js        # conexão com o banco
-├── middlewares/erros.js # converte erros do banco em respostas HTTP
+├── lib/
+│   ├── prisma.js        # conexão com o banco
+│   ├── validacao.js     # valida e normaliza params, query e body
+│   ├── respostas.js     # formato de cada resposta (select + mapper)
+│   └── horario.js       # "agora" no fuso do campus, períodos e horas HH:MM
+├── middlewares/erros.js # padrão de erros da API (ver seção 7)
 └── routes/              # uma rota por entidade (cursos.routes.js é o modelo)
+tests/                   # testes (node:test) — npm test
 scripts/vercel-build.js  # build na Vercel (gera o client + migra nas branches de ambiente)
 ```
 
 As regras de integridade (RNF11) ficam no banco: chaves estrangeiras, `onDelete: Restrict` e `@@unique`. A API transforma violações em respostas claras: **409** para duplicidade ou registro em uso, **404** para não encontrado.
+
+### Testes
+
+```bash
+npm test     # precisa do banco local com as migrações (npm run db:up && npm run db:deploy)
+```
+
+Os testes usam o `node:test` (nativo do Node, sem dependência extra) e rodam no CI em todo PR. Os de ponta a ponta (`tests/api.test.js`) só fazem leituras no banco.
 
 ---
 
@@ -169,3 +182,56 @@ Projetos gratuitos pausam após 1 semana sem uso. O workflow `manter-supabase-at
 ## 6. Ordem de deploy com o front-end
 
 Como são repositórios separados, uma mudança que mexe nos dois sobe em dois PRs. Suba **primeiro o back-end** e mantenha a API compatível com a versão anterior do front (adicione campos e rotas novas em vez de renomear ou remover de uma vez).
+
+---
+
+## 7. Padrão da API: erros, validações e respostas
+
+### 7.1 Erros
+
+Todo erro responde com o mesmo formato:
+
+```json
+{ "erro": "O campo \"nome\" é obrigatório.", "codigo": "PARAMETRO_INVALIDO" }
+```
+
+- `erro`: mensagem em português, pode ser mostrada direto ao usuário.
+- `codigo`: sempre um destes. **O front decide o que fazer pelo `codigo`, nunca pela mensagem.**
+
+| `codigo` | HTTP | Quando |
+|---|---|---|
+| `PARAMETRO_INVALIDO` | 400 | Parâmetro, query ou corpo inválido (inclui JSON malformado) |
+| `NAO_ENCONTRADO` | 404 | O registro pedido não existe |
+| `ROTA_NAO_ENCONTRADA` | 404 | A URL/método não existe na API |
+| `CONFLITO` | 409 | Valor duplicado ou registro ainda em uso (regras do banco, RNF11) |
+| `ERRO_INTERNO` | 500 | Erro inesperado (detalhes só no log do servidor) |
+| `BANCO_INDISPONIVEL` | 503 | Não foi possível falar com o banco (fora do ar, Supabase pausado) — vale tentar de novo |
+
+Códigos internos do Prisma (`P2002`, `P2025`...) e nomes de colunas nunca aparecem na resposta. Para lançar um erro numa rota, use `throw new ErroValidacao('...')` ou `throw new ErroNaoEncontrado('...')` (de `src/middlewares/erros.js`); o Express 5 repassa erros de rotas `async` para o middleware sozinho.
+
+A exceção é o `GET /api/health`, que mantém o formato próprio (`{ status, ambiente, banco }`, 503 quando o banco cai) porque é lido pelo workflow que mantém o Supabase ativo.
+
+### 7.2 Validações (`src/lib/validacao.js`)
+
+Valide **tudo** que vem de `req.params`, `req.query` e `req.body` antes de ir ao banco. Cada função normaliza (tira espaços, coloca em maiúsculas) e devolve o valor pronto ou lança `PARAMETRO_INVALIDO`. Para parâmetros não obrigatórios, use `opcional(funcao)` (devolve `null` se não veio).
+
+| Função | Aceita | Devolve |
+|---|---|---|
+| `diaSemana` | `SEGUNDA`, `TERCA`, `QUARTA`, `QUINTA`, `SEXTA`, `SABADO` (aceita minúsculas e acento: `terça`) | `'TERCA'` |
+| `periodo` | `MATUTINO` (até 11:59), `VESPERTINO` (12:00–17:59), `NOTURNO` (a partir de 18:00) | `'NOTURNO'` |
+| `hora` | `HH:MM`, de `00:00` a `23:59` | `'19:00'` |
+| `codigoSala` | formato do mapa, ex.: `BL4-104` | `'BL4-104'` |
+| `andar` | inteiro de 0 a 99 (0 = térreo) | `0` |
+| `siglaCurso` | 2 a 20 letras/números, ex.: `SI` | `'SI'` |
+| `busca` | texto de até 100 caracteres | texto sem espaços nas pontas |
+| `id`, `inteiro`, `texto`, `corpo` | genéricos (id positivo, inteiro com faixa, texto com tamanho máximo, corpo JSON obrigatório) | |
+
+O "agora" da ocupação das salas vem de `agoraNoCampus()` (`src/lib/horario.js`), que usa o fuso `America/Sao_Paulo` via `Intl` — a Vercel roda em UTC e não permite definir `TZ`.
+
+### 7.3 Respostas (`src/lib/respostas.js`)
+
+- Toda rota busca com `select` e monta a resposta com o mapper da entidade: nada de devolver o objeto do Prisma direto (assim `criadoEm`/`atualizadoEm` não vazam).
+- Campo sem valor sai como `null`, **nunca omitido** (use `?? null`).
+- Listas sem itens saem como `[]` (ex.: `fotos: []`); fotos no formato `[{ "url": "...", "descricao": "..." }]`.
+- Imagem indisponível não é erro: foto sem URL é descartada e a sala sem fotos sai com `fotos: []` — o front mostra "Foto indisponível" (RF17).
+- Horas sempre como `"HH:MM"` (use `formatarHora`).

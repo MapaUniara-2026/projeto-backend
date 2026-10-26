@@ -47,6 +47,9 @@ jobs:
           fi
           exit $CODIGO
 
+      - name: Testes
+        run: npm test
+
       - name: Smoke test da API
         run: |
           PORT=3000 node src/local.js &

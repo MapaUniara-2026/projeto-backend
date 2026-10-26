@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import cors from 'cors'
 import express from 'express'
-import { tratarErros } from './middlewares/erros.js'
+import { rotaNaoEncontrada, tratarErros } from './middlewares/erros.js'
 import cursosRoutes from './routes/cursos.routes.js'
 import healthRoutes from './routes/health.routes.js'
 import salasRoutes from './routes/salas.routes.js'
@@ -23,7 +23,7 @@ app.use('/api/health', healthRoutes)
 app.use('/api/cursos', cursosRoutes)
 app.use('/api/salas', salasRoutes)
 
-app.use((req, res) => res.status(404).json({ erro: 'Rota não encontrada' }))
+app.use(rotaNaoEncontrada)
 app.use(tratarErros)
 
 // A Vercel usa este export default (cada requisição vira uma função serverless).
