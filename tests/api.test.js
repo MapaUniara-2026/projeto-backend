@@ -48,6 +48,16 @@ describe('API', () => {
     assert.deepEqual([status, corpo], [404, { erro: 'Curso não encontrado.', codigo: 'NAO_ENCONTRADO' }])
   })
 
+  it('horário com turma ou sala inexistente responde 404 sem gravar nada', async () => {
+    const horario = (turmaId, salaId) =>
+      JSON.stringify({ turmaId, salaId, diaSemana: 'QUARTA', horaInicio: '19:00', horaFim: '20:00' })
+    const [statusTurma, turma] = await api.pedir('/api/horarios', json(horario(2147483647, 1)))
+    assert.deepEqual([statusTurma, turma], [404, { erro: 'Turma não encontrada.', codigo: 'NAO_ENCONTRADO' }])
+    // Sem seed (ex.: no CI) a turma 1 também pode não existir, então só o código é garantido.
+    const [statusSala, sala] = await api.pedir('/api/horarios', json(horario(1, 2147483647)))
+    assert.deepEqual([statusSala, sala.codigo], [404, 'NAO_ENCONTRADO'])
+  })
+
   it('listas não vazam colunas internas', async () => {
     const [, cursos] = await api.pedir('/api/cursos')
     const [, salas] = await api.pedir('/api/salas')

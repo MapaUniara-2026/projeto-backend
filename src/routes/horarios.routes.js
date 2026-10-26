@@ -39,6 +39,15 @@ router.get('/:id', async (req, res) => {
 // Cadastro sujeito à revisão do time sobre autenticação e escopo de escrita.
 router.post('/', async (req, res) => {
   const data = validarCadastroHorario(req.body)
+
+  // Sem isso a foreign key do banco recusaria o cadastro com um 409 genérico.
+  const [turma, sala] = await Promise.all([
+    prisma.turma.findUnique({ where: { id: data.turmaId }, select: { id: true } }),
+    prisma.sala.findUnique({ where: { id: data.salaId }, select: { id: true } }),
+  ])
+  if (!turma) throw new ErroNaoEncontrado('Turma não encontrada.')
+  if (!sala) throw new ErroNaoEncontrado('Sala não encontrada.')
+
   const conflito = await consultarConflitoNoBanco(prisma, data)
 
   if (conflito) {
