@@ -4,6 +4,7 @@ import express from 'express'
 import { tratarErros } from './middlewares/erros.js'
 import cursosRoutes from './routes/cursos.routes.js'
 import healthRoutes from './routes/health.routes.js'
+import aulasRoutes from './routes/aulas.routes.js'
 import salasRoutes from './routes/salas.routes.js'
 
 const app = express()
@@ -20,6 +21,7 @@ app.use(express.json())
 
 app.get('/', (req, res) => res.json({ mensagem: 'API do Projeto da Faculdade' }))
 app.use('/api/health', healthRoutes)
+app.use('/api/aulas', aulasRoutes)
 app.use('/api/cursos', cursosRoutes)
 app.use('/api/salas', salasRoutes)
 
