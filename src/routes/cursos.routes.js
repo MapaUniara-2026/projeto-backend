@@ -1,6 +1,7 @@
 // CRUD completo de cursos — use como modelo para as outras entidades.
 import { Router } from 'express'
 import { prisma } from '../lib/prisma.js'
+import { parseId } from '../lib/validacao.js'
 import { ErroValidacao } from '../middlewares/erros.js'
 
 const router = Router()
@@ -19,7 +20,7 @@ router.get('/', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
   const curso = await prisma.curso.findUniqueOrThrow({
-    where: { id: Number(req.params.id) },
+    where: { id: parseId(req.params.id) },
     include: { turmas: true },
   })
   res.json(curso)
@@ -32,7 +33,7 @@ router.post('/', async (req, res) => {
 
 router.put('/:id', async (req, res) => {
   const curso = await prisma.curso.update({
-    where: { id: Number(req.params.id) },
+    where: { id: parseId(req.params.id) },
     data: validar(req.body),
   })
   res.json(curso)
@@ -40,7 +41,7 @@ router.put('/:id', async (req, res) => {
 
 router.delete('/:id', async (req, res) => {
   // Se o curso tiver turmas, o banco recusa (onDelete: Restrict) e a API responde 409.
-  await prisma.curso.delete({ where: { id: Number(req.params.id) } })
+  await prisma.curso.delete({ where: { id: parseId(req.params.id) } })
   res.status(204).end()
 })
 
