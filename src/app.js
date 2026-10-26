@@ -7,6 +7,7 @@ import healthRoutes from './routes/health.routes.js'
 import aulasRoutes from './routes/aulas.routes.js'
 import turmasRoutes from './routes/turmas.routes.js'
 import professoresRoutes from './routes/professores.routes.js'
+import docsRoutes from './routes/docs.routes.js'
 import salasRoutes from './routes/salas.routes.js'
 
 const app = express()
@@ -26,6 +27,7 @@ app.use('/api/health', healthRoutes)
 app.use('/api/aulas', aulasRoutes)
 app.use('/api/turmas', turmasRoutes)
 app.use('/api/professores', professoresRoutes)
+app.use('/api/docs', docsRoutes)
 app.use('/api/cursos', cursosRoutes)
 app.use('/api/salas', salasRoutes)
 
