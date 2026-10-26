@@ -1,0 +1,554 @@
+{
+  "dataHora": "26/10/2026, 20:25:01",
+  "ambiente": "Local",
+  "resultados": [
+    {
+      "pasta": "0. Health",
+      "nome": "Health",
+      "metodo": "GET",
+      "descricao": "Esperado: 200 com `status: ok` e `banco: ok`. Se der 503, o banco está fora e os outros testes vão falhar.",
+      "url": "http://localhost:3000/api/health",
+      "status": 200,
+      "ms": 173,
+      "corpo": "{\"status\":\"ok\",\"ambiente\":\"LOCAL\",\"banco\":\"ok\"}",
+      "testes": [
+        {
+          "nome": "status 200",
+          "passou": true
+        },
+        {
+          "nome": "resposta em JSON",
+          "passou": true
+        },
+        {
+          "nome": "banco ok",
+          "passou": true
+        }
+      ]
+    },
+    {
+      "pasta": "1. Salas",
+      "nome": "Listar salas",
+      "metodo": "GET",
+      "descricao": "**2.3** Lista para o mapa e a busca, **sem fotografias** (RNF04).\n\n**2.5** Campos em camelCase; dado ausente vem `null`, não omitido.",
+      "url": "http://localhost:3000/api/salas",
+      "status": 200,
+      "ms": 47,
+      "corpo": "[{\"codigo\":\"BL4-101\",\"nome\":\"Sala 101\",\"bloco\":\"BL4\",\"andar\":1,\"tipo\":\"SALA_DE_AULA\",\"localizacaoMapa\":\"sala-bl4-101\"},{\"codigo\":\"BL4-104\",\"nome\":\"Laboratório de Informática 1\",\"bloco\":\"BL4\",\"andar\":1,\"tipo\":\"LABORATORIO\",\"localizacaoMapa\":\"sala-bl4-104\"},{\"codigo\":\"BL4-201\",\"nome\":\"Sala 201\",\"bloco\":\"BL4\",\"andar\":2,\"tipo\":\"SALA_DE_AULA\",\"localizacaoMapa\":\"sala-bl4-201\"},{\"codigo\":\"BL4-202\",\"nome\":\"Auditório\",\"bloco\":\"BL4\",\"andar\":2,\"tipo\":\"AUDITORIO\",\"localizacaoMapa\":\"sala-bl4-202\"}]",
+      "testes": [
+        {
+          "nome": "status 200",
+          "passou": true
+        },
+        {
+          "nome": "resposta em JSON",
+          "passou": true
+        },
+        {
+          "nome": "retorna lista",
+          "passou": true
+        },
+        {
+          "nome": "toda sala tem codigo",
+          "passou": true
+        },
+        {
+          "nome": "lista não traz fotos (RNF04)",
+          "passou": true
+        },
+        {
+          "nome": "andar e tipo presentes (null se ausente)",
+          "passou": true
+        },
+        {
+          "nome": "campos em camelCase",
+          "passou": true
+        }
+      ]
+    },
+    {
+      "pasta": "1. Salas",
+      "nome": "Filtrar salas por andar",
+      "metodo": "GET",
+      "descricao": "**2.3** Filtro `andar` na URL. Todas as salas devolvidas devem ser do andar 1.",
+      "url": "http://localhost:3000/api/salas?andar=1",
+      "status": 200,
+      "ms": 12,
+      "corpo": "[{\"codigo\":\"BL4-101\",\"nome\":\"Sala 101\",\"bloco\":\"BL4\",\"andar\":1,\"tipo\":\"SALA_DE_AULA\",\"localizacaoMapa\":\"sala-bl4-101\"},{\"codigo\":\"BL4-104\",\"nome\":\"Laboratório de Informática 1\",\"bloco\":\"BL4\",\"andar\":1,\"tipo\":\"LABORATORIO\",\"localizacaoMapa\":\"sala-bl4-104\"}]",
+      "testes": [
+        {
+          "nome": "status 200",
+          "passou": true
+        },
+        {
+          "nome": "resposta em JSON",
+          "passou": true
+        },
+        {
+          "nome": "todas do andar 1",
+          "passou": true
+        }
+      ]
+    },
+    {
+      "pasta": "1. Salas",
+      "nome": "Filtrar salas por tipo",
+      "metodo": "GET",
+      "descricao": "**2.3** Filtro `tipo`. Ajuste o valor para um tipo que exista no DER.",
+      "url": "http://localhost:3000/api/salas?tipo=LABORATORIO",
+      "status": 200,
+      "ms": 6,
+      "corpo": "[{\"codigo\":\"BL4-104\",\"nome\":\"Laboratório de Informática 1\",\"bloco\":\"BL4\",\"andar\":1,\"tipo\":\"LABORATORIO\",\"localizacaoMapa\":\"sala-bl4-104\"}]",
+      "testes": [
+        {
+          "nome": "status 200",
+          "passou": true
+        },
+        {
+          "nome": "resposta em JSON",
+          "passou": true
+        },
+        {
+          "nome": "todas do tipo pedido",
+          "passou": true
+        }
+      ]
+    },
+    {
+      "pasta": "1. Salas",
+      "nome": "Buscar salas",
+      "metodo": "GET",
+      "descricao": "**2.3** Filtro `busca` (texto livre). Confira manualmente se os resultados fazem sentido.",
+      "url": "http://localhost:3000/api/salas?busca=104",
+      "status": 200,
+      "ms": 14,
+      "corpo": "[{\"codigo\":\"BL4-104\",\"nome\":\"Laboratório de Informática 1\",\"bloco\":\"BL4\",\"andar\":1,\"tipo\":\"LABORATORIO\",\"localizacaoMapa\":\"sala-bl4-104\"}]",
+      "testes": [
+        {
+          "nome": "status 200",
+          "passou": true
+        },
+        {
+          "nome": "resposta em JSON",
+          "passou": true
+        },
+        {
+          "nome": "retorna lista",
+          "passou": true
+        }
+      ]
+    },
+    {
+      "pasta": "1. Salas",
+      "nome": "Detalhe da sala (com fotos)",
+      "metodo": "GET",
+      "descricao": "**2.2** Sala pelo **código**, não pelo ID.\n\n**2.4** `fotos: [{ url, descricao }]`; sala sem foto retorna `fotos: []`. `descricao` é o texto alternativo (RNF10). `url` pronta para uso.",
+      "url": "http://localhost:3000/api/salas/BL4-104",
+      "status": 200,
+      "ms": 17,
+      "corpo": "{\"codigo\":\"BL4-104\",\"nome\":\"Laboratório de Informática 1\",\"bloco\":\"BL4\",\"andar\":1,\"tipo\":\"LABORATORIO\",\"localizacaoMapa\":\"sala-bl4-104\",\"fotos\":[{\"url\":\"https://placehold.co/800x600?text=BL4-104+frente\",\"descricao\":\"Laboratório 1 visto da porta, com bancadas de computadores\"},{\"url\":\"https://placehold.co/800x600?text=BL4-104+fundo\",\"descricao\":\"Fundo do Laboratório 1, com projetor e lousa\"}]}",
+      "testes": [
+        {
+          "nome": "status 200",
+          "passou": true
+        },
+        {
+          "nome": "resposta em JSON",
+          "passou": true
+        },
+        {
+          "nome": "mesmo código pedido",
+          "passou": true
+        },
+        {
+          "nome": "fotos é lista",
+          "passou": true
+        },
+        {
+          "nome": "cada foto tem url e descricao",
+          "passou": true
+        },
+        {
+          "nome": "campos em camelCase",
+          "passou": true
+        }
+      ]
+    },
+    {
+      "pasta": "1. Salas",
+      "nome": "Detalhe de sala sem fotos",
+      "metodo": "GET",
+      "descricao": "**2.4** A BL4-202 (Auditório) não tem fotos no seed: `fotos` deve vir como `[]`, nunca ausente.",
+      "url": "http://localhost:3000/api/salas/BL4-202",
+      "status": 200,
+      "ms": 9,
+      "corpo": "{\"codigo\":\"BL4-202\",\"nome\":\"Auditório\",\"bloco\":\"BL4\",\"andar\":2,\"tipo\":\"AUDITORIO\",\"localizacaoMapa\":\"sala-bl4-202\",\"fotos\":[]}",
+      "testes": [
+        {
+          "nome": "status 200",
+          "passou": true
+        },
+        {
+          "nome": "resposta em JSON",
+          "passou": true
+        },
+        {
+          "nome": "fotos é lista (pode ser vazia)",
+          "passou": true
+        }
+      ]
+    },
+    {
+      "pasta": "1. Salas",
+      "nome": "Sala inexistente",
+      "metodo": "GET",
+      "descricao": "**2.6** Registro não encontrado → 404 no formato padrão.",
+      "url": "http://localhost:3000/api/salas/XX-999",
+      "status": 404,
+      "ms": 10,
+      "corpo": "{\"erro\":\"Registro não encontrado.\",\"codigo\":\"P2025\"}",
+      "testes": [
+        {
+          "nome": "status 404",
+          "passou": true
+        },
+        {
+          "nome": "erro no formato { erro, codigo }",
+          "passou": true
+        }
+      ]
+    },
+    {
+      "pasta": "2. Aulas",
+      "nome": "Listar aulas",
+      "metodo": "GET",
+      "descricao": "**2.1** Cada aula traz `sala`, `disciplina`, `curso`, `professor`, `turma` (alinhado ao DER).\n\n**2.5** Dia SEGUNDA–SEXTA, período MATUTINO/VESPERTINO/NOTURNO, horário \"HH:MM\".",
+      "url": "http://localhost:3000/api/aulas",
+      "status": 200,
+      "ms": 56,
+      "corpo": "[{\"id\":1,\"diaSemana\":\"SEGUNDA\",\"periodo\":\"NOTURNO\",\"horaInicio\":\"19:00\",\"horaTermino\":\"22:30\",\"sala\":{\"codigo\":\"BL4-104\",\"nome\":\"Laboratório de Informática 1\",\"andar\":1},\"curso\":{\"sigla\":\"ES\",\"nome\":\"Engenharia de Software\"},\"disciplina\":{\"nome\":\"Engenharia de Software II\"},\"professor\":{\"nome\":\"Ana Souza\"},\"turma\":{\"nome\":\"ES-3A\",\"semestre\":3}},{\"id\":2,\"diaSemana\":\"SEGUNDA\",\"periodo\":\"NOTURNO\",\"horaInicio\":\"19:00\",\"horaTermino\":\"20:40\",\"sala\":{\"codigo\":\"BL4-101\",\"nome\":\"Sala 101\",\"andar\":1},\"curso\":{\"sigla\":\"SI\",\"nome\":\"Sistemas de Informação\"},\"disciplina\":{\"nome\":\"Sistemas Operacionais\"},\"professor\":{\"nome\":\"Bruno Lima\"},\"turma\":{\"nome\":\"SI-3A\",\"semestre\":3}},{\"id\":3,\"diaSemana\":\"TERCA\",\"periodo\":\"NOTURNO\",\"horaInicio\":\"19:00\",\"horaTermino\":\"22:30\",\"sala\":{\"codigo\":\"BL4-104\",\"nome\":\"Laboratório de Informática 1\",\"andar\":1},\"curso\":{\"sigla\":\"SI\",\"nome\":\"Sistemas de Informação\"},\"disciplina\":{\"nome\":\"Banco de Dados\"},\"professor\":{\"nome\":\"Carla Mendes\"},\"turma\":{\"nome\":\"SI-3A\",\"semestre\":3}},{\"id\":4,\"diaSemana\":\"QUARTA\",\"periodo\":\"MATUTINO\",\"horaInicio\":\"08:00\",\"horaTermino\":\"11:40\",\"sala\":{\"codigo\":\"BL4-201\",\"nome\":\"Sala 201\",\"andar\":2},\"curso\":{\"sigla\":\"ES\",\"nome\":\"Engenharia de Software\"},\"disciplina\":{\"nome\":\"Cálculo I\"},\"professor\":{\"nome\":\"Bruno Lima\"},\"turma\":{\"nome\":\"ES-1A\",\"semestre\":1}},{\"id\":5,\"diaSemana\":\"QUINTA\",\"periodo\":\"VESPERTINO\",\"horaInicio\":\"14:00\",\"horaTermino\":\"17:30\",\"sala\":{\"codigo\":\"BL4-202\",\"nome\":\"Auditório\",\"andar\":2},\"curso\":{\"sigla\":\"ES\",\"nome\":\"Engenharia de Software\"},\"disciplina\":{\"nome\":\"Engenharia de Software II\"},\"professor\":{\"nome\":\"Ana Souza\"},\"turma\":{\"nome\":\"ES-3A\",\"semestre\":3}},{\"id\":6,\"diaSemana\":\"SEXTA\",\"periodo\":\"NOTURNO\",\"horaInicio\":\"20:50\",\"horaTermino\":\"22:30\",\"sala\":{\"codigo\":\"BL4-101\",\"nome\":\"Sala 101\",\"andar\":1},\"curso\":{\"sigla\":\"SI\",\"nome\":\"Sistemas de Informação\"},\"disciplina\":{\"nome\":\"Sistemas Operacionais\"},\"professor\":{\"nome\":\"Bruno Lima\"},\"turma\":{\"nome\":\"SI-3A\",\"semestre\":3}}]",
+      "testes": [
+        {
+          "nome": "status 200",
+          "passou": true
+        },
+        {
+          "nome": "resposta em JSON",
+          "passou": true
+        },
+        {
+          "nome": "retorna lista",
+          "passou": true
+        },
+        {
+          "nome": "aulas seguem o contrato",
+          "passou": true
+        },
+        {
+          "nome": "campos em camelCase",
+          "passou": true
+        }
+      ]
+    },
+    {
+      "pasta": "2. Aulas",
+      "nome": "Aulas com filtros combinados",
+      "metodo": "GET",
+      "descricao": "**2.3** Filtros combinados. Todos os resultados devem atender aos três filtros ao mesmo tempo.",
+      "url": "http://localhost:3000/api/aulas?curso=ES&dia=SEGUNDA&periodo=NOTURNO",
+      "status": 200,
+      "ms": 12,
+      "corpo": "[{\"id\":1,\"diaSemana\":\"SEGUNDA\",\"periodo\":\"NOTURNO\",\"horaInicio\":\"19:00\",\"horaTermino\":\"22:30\",\"sala\":{\"codigo\":\"BL4-104\",\"nome\":\"Laboratório de Informática 1\",\"andar\":1},\"curso\":{\"sigla\":\"ES\",\"nome\":\"Engenharia de Software\"},\"disciplina\":{\"nome\":\"Engenharia de Software II\"},\"professor\":{\"nome\":\"Ana Souza\"},\"turma\":{\"nome\":\"ES-3A\",\"semestre\":3}}]",
+      "testes": [
+        {
+          "nome": "status 200",
+          "passou": true
+        },
+        {
+          "nome": "resposta em JSON",
+          "passou": true
+        },
+        {
+          "nome": "todas atendem aos filtros",
+          "passou": true
+        }
+      ]
+    },
+    {
+      "pasta": "2. Aulas",
+      "nome": "Aulas de uma sala",
+      "metodo": "GET",
+      "descricao": "**2.2** Filtro de sala pelo **código**.",
+      "url": "http://localhost:3000/api/aulas?sala=BL4-104",
+      "status": 200,
+      "ms": 8,
+      "corpo": "[{\"id\":1,\"diaSemana\":\"SEGUNDA\",\"periodo\":\"NOTURNO\",\"horaInicio\":\"19:00\",\"horaTermino\":\"22:30\",\"sala\":{\"codigo\":\"BL4-104\",\"nome\":\"Laboratório de Informática 1\",\"andar\":1},\"curso\":{\"sigla\":\"ES\",\"nome\":\"Engenharia de Software\"},\"disciplina\":{\"nome\":\"Engenharia de Software II\"},\"professor\":{\"nome\":\"Ana Souza\"},\"turma\":{\"nome\":\"ES-3A\",\"semestre\":3}},{\"id\":3,\"diaSemana\":\"TERCA\",\"periodo\":\"NOTURNO\",\"horaInicio\":\"19:00\",\"horaTermino\":\"22:30\",\"sala\":{\"codigo\":\"BL4-104\",\"nome\":\"Laboratório de Informática 1\",\"andar\":1},\"curso\":{\"sigla\":\"SI\",\"nome\":\"Sistemas de Informação\"},\"disciplina\":{\"nome\":\"Banco de Dados\"},\"professor\":{\"nome\":\"Carla Mendes\"},\"turma\":{\"nome\":\"SI-3A\",\"semestre\":3}}]",
+      "testes": [
+        {
+          "nome": "status 200",
+          "passou": true
+        },
+        {
+          "nome": "resposta em JSON",
+          "passou": true
+        },
+        {
+          "nome": "todas na sala pedida",
+          "passou": true
+        }
+      ]
+    },
+    {
+      "pasta": "2. Aulas",
+      "nome": "Dia fora do padrão (SABADO)",
+      "metodo": "GET",
+      "descricao": "**RN04** Só SEGUNDA a SEXTA. Hoje o enum do banco ainda aceita SABADO.\n\n**2.6** Parâmetro inválido → 400.",
+      "url": "http://localhost:3000/api/aulas?dia=SABADO",
+      "status": 400,
+      "ms": 2,
+      "corpo": "{\"erro\":\"O filtro \\\"dia\\\" aceita: SEGUNDA, TERCA, QUARTA, QUINTA, SEXTA.\"}",
+      "testes": [
+        {
+          "nome": "status 400",
+          "passou": true
+        },
+        {
+          "nome": "erro no formato { erro, codigo }",
+          "passou": false,
+          "motivo": "codigo: expected undefined to be a string"
+        }
+      ]
+    },
+    {
+      "pasta": "2. Aulas",
+      "nome": "Período inválido",
+      "metodo": "GET",
+      "descricao": "**RN03** Períodos válidos: MATUTINO, VESPERTINO, NOTURNO → 400.",
+      "url": "http://localhost:3000/api/aulas?periodo=MADRUGADA",
+      "status": 400,
+      "ms": 1,
+      "corpo": "{\"erro\":\"O filtro \\\"periodo\\\" aceita: MATUTINO, VESPERTINO, NOTURNO.\"}",
+      "testes": [
+        {
+          "nome": "status 400",
+          "passou": true
+        },
+        {
+          "nome": "erro no formato { erro, codigo }",
+          "passou": false,
+          "motivo": "codigo: expected undefined to be a string"
+        }
+      ]
+    },
+    {
+      "pasta": "3. Ocupação",
+      "nome": "Ocupação em dia e hora",
+      "metodo": "GET",
+      "descricao": "**2.3** Ocupação e disponibilidade das salas.\n\nSe voltar 404 \"sala não encontrada\", a rota `/ocupacao` está declarada **depois** de `/:codigo` no router.",
+      "url": "http://localhost:3000/api/salas/ocupacao?dia=SEGUNDA&hora=19:30",
+      "status": 200,
+      "ms": 13,
+      "corpo": "[{\"codigo\":\"BL4-101\",\"nome\":\"Sala 101\",\"bloco\":\"BL4\",\"andar\":1,\"tipo\":\"SALA_DE_AULA\",\"localizacaoMapa\":\"sala-bl4-101\",\"ocupada\":true,\"aula\":{\"id\":2,\"diaSemana\":\"SEGUNDA\",\"periodo\":\"NOTURNO\",\"horaInicio\":\"19:00\",\"horaTermino\":\"20:40\",\"sala\":{\"codigo\":\"BL4-101\",\"nome\":\"Sala 101\",\"andar\":1},\"curso\":{\"sigla\":\"SI\",\"nome\":\"Sistemas de Informação\"},\"disciplina\":{\"nome\":\"Sistemas Operacionais\"},\"professor\":{\"nome\":\"Bruno Lima\"},\"turma\":{\"nome\":\"SI-3A\",\"semestre\":3}}},{\"codigo\":\"BL4-104\",\"nome\":\"Laboratório de Informática 1\",\"bloco\":\"BL4\",\"andar\":1,\"tipo\":\"LABORATORIO\",\"localizacaoMapa\":\"sala-bl4-104\",\"ocupada\":true,\"aula\":{\"id\":1,\"diaSemana\":\"SEGUNDA\",\"periodo\":\"NOTURNO\",\"horaInicio\":\"19:00\",\"horaTermino\":\"22:30\",\"sala\":{\"codigo\":\"BL4-104\",\"nome\":\"Laboratório de Informática 1\",\"andar\":1},\"curso\":{\"sigla\":\"ES\",\"nome\":\"Engenharia de Software\"},\"disciplina\":{\"nome\":\"Engenharia de Software II\"},\"professor\":{\"nome\":\"Ana Souza\"},\"turma\":{\"nome\":\"ES-3A\",\"semestre\":3}}},{\"codigo\":\"BL4-201\",\"nome\":\"Sala 201\",\"bloco\":\"BL4\",\"andar\":2,\"tipo\":\"SALA_DE_AULA\",\"localizacaoMapa\":\"sala-bl4-201\",\"ocupada\":false,\"aula\":null},{\"codigo\":\"BL4-202\",\"nome\":\"Auditório\",\"bloco\":\"BL4\",\"andar\":2,\"tipo\":\"AUDITORIO\",\"localizacaoMapa\":\"sala-bl4-202\",\"ocupada\":false,\"aula\":null}]",
+      "testes": [
+        {
+          "nome": "status 200",
+          "passou": true
+        },
+        {
+          "nome": "resposta em JSON",
+          "passou": true
+        },
+        {
+          "nome": "retorna lista",
+          "passou": true
+        },
+        {
+          "nome": "toda sala tem codigo",
+          "passou": true
+        },
+        {
+          "nome": "campos em camelCase",
+          "passou": true
+        }
+      ]
+    },
+    {
+      "pasta": "3. Ocupação",
+      "nome": "Ocupação agora (fuso)",
+      "metodo": "GET",
+      "descricao": "**2.5** Sem `dia`/`hora`, a API usa o momento atual **em America/Sao_Paulo**. O servidor roda em UTC: compare manualmente com o relógio — se a ocupação estiver 3h adiantada, o fuso não foi tratado.",
+      "url": "http://localhost:3000/api/salas/ocupacao",
+      "status": 200,
+      "ms": 34,
+      "corpo": "[{\"codigo\":\"BL4-101\",\"nome\":\"Sala 101\",\"bloco\":\"BL4\",\"andar\":1,\"tipo\":\"SALA_DE_AULA\",\"localizacaoMapa\":\"sala-bl4-101\",\"ocupada\":true,\"aula\":{\"id\":2,\"diaSemana\":\"SEGUNDA\",\"periodo\":\"NOTURNO\",\"horaInicio\":\"19:00\",\"horaTermino\":\"20:40\",\"sala\":{\"codigo\":\"BL4-101\",\"nome\":\"Sala 101\",\"andar\":1},\"curso\":{\"sigla\":\"SI\",\"nome\":\"Sistemas de Informação\"},\"disciplina\":{\"nome\":\"Sistemas Operacionais\"},\"professor\":{\"nome\":\"Bruno Lima\"},\"turma\":{\"nome\":\"SI-3A\",\"semestre\":3}}},{\"codigo\":\"BL4-104\",\"nome\":\"Laboratório de Informática 1\",\"bloco\":\"BL4\",\"andar\":1,\"tipo\":\"LABORATORIO\",\"localizacaoMapa\":\"sala-bl4-104\",\"ocupada\":true,\"aula\":{\"id\":1,\"diaSemana\":\"SEGUNDA\",\"periodo\":\"NOTURNO\",\"horaInicio\":\"19:00\",\"horaTermino\":\"22:30\",\"sala\":{\"codigo\":\"BL4-104\",\"nome\":\"Laboratório de Informática 1\",\"andar\":1},\"curso\":{\"sigla\":\"ES\",\"nome\":\"Engenharia de Software\"},\"disciplina\":{\"nome\":\"Engenharia de Software II\"},\"professor\":{\"nome\":\"Ana Souza\"},\"turma\":{\"nome\":\"ES-3A\",\"semestre\":3}}},{\"codigo\":\"BL4-201\",\"nome\":\"Sala 201\",\"bloco\":\"BL4\",\"andar\":2,\"tipo\":\"SALA_DE_AULA\",\"localizacaoMapa\":\"sala-bl4-201\",\"ocupada\":false,\"aula\":null},{\"codigo\":\"BL4-202\",\"nome\":\"Auditório\",\"bloco\":\"BL4\",\"andar\":2,\"tipo\":\"AUDITORIO\",\"localizacaoMapa\":\"sala-bl4-202\",\"ocupada\":false,\"aula\":null}]",
+      "testes": [
+        {
+          "nome": "status 200",
+          "passou": true
+        },
+        {
+          "nome": "resposta em JSON",
+          "passou": true
+        }
+      ]
+    },
+    {
+      "pasta": "3. Ocupação",
+      "nome": "Hora inválida",
+      "metodo": "GET",
+      "descricao": "**2.5** Horário deve ser \"HH:MM\" válido → 400.",
+      "url": "http://localhost:3000/api/salas/ocupacao?dia=SEGUNDA&hora=25:99",
+      "status": 400,
+      "ms": 1,
+      "corpo": "{\"erro\":\"O filtro \\\"hora\\\" deve estar no formato \\\"HH:MM\\\" (ex.: 19:30).\"}",
+      "testes": [
+        {
+          "nome": "status 400",
+          "passou": true
+        },
+        {
+          "nome": "erro no formato { erro, codigo }",
+          "passou": false,
+          "motivo": "codigo: expected undefined to be a string"
+        }
+      ]
+    },
+    {
+      "pasta": "3. Ocupação",
+      "nome": "Dia inválido",
+      "metodo": "GET",
+      "descricao": "**RN04** → 400.",
+      "url": "http://localhost:3000/api/salas/ocupacao?dia=SABADO&hora=10:00",
+      "status": 400,
+      "ms": 1,
+      "corpo": "{\"erro\":\"O filtro \\\"dia\\\" aceita: SEGUNDA, TERCA, QUARTA, QUINTA, SEXTA.\"}",
+      "testes": [
+        {
+          "nome": "status 400",
+          "passou": true
+        },
+        {
+          "nome": "erro no formato { erro, codigo }",
+          "passou": false,
+          "motivo": "codigo: expected undefined to be a string"
+        }
+      ]
+    },
+    {
+      "pasta": "4. Cursos",
+      "nome": "Listar cursos",
+      "metodo": "GET",
+      "descricao": "**2.3** Opções do filtro de curso: cada item precisa de `sigla` e `nome` (DER).",
+      "url": "http://localhost:3000/api/cursos",
+      "status": 200,
+      "ms": 4,
+      "corpo": "[{\"id\":2,\"nome\":\"Engenharia de Software\",\"sigla\":\"ES\",\"criadoEm\":\"2026-10-26T23:16:03.886Z\",\"atualizadoEm\":\"2026-10-26T23:16:03.886Z\"},{\"id\":1,\"nome\":\"Sistemas de Informação\",\"sigla\":\"SI\",\"criadoEm\":\"2026-10-26T23:16:03.882Z\",\"atualizadoEm\":\"2026-10-26T23:16:03.882Z\"}]",
+      "testes": [
+        {
+          "nome": "status 200",
+          "passou": true
+        },
+        {
+          "nome": "resposta em JSON",
+          "passou": true
+        },
+        {
+          "nome": "retorna lista",
+          "passou": true
+        },
+        {
+          "nome": "cada curso tem sigla e nome",
+          "passou": true
+        },
+        {
+          "nome": "campos em camelCase",
+          "passou": true
+        }
+      ]
+    },
+    {
+      "pasta": "4. Cursos",
+      "nome": "Curso com ID inválido",
+      "metodo": "GET",
+      "descricao": "**2.6** Parâmetro inválido → 400. Hoje `Number('abc')` vira NaN e a API responde 500.",
+      "url": "http://localhost:3000/api/cursos/abc",
+      "status": 500,
+      "ms": 8,
+      "corpo": "{\"erro\":\"Erro interno do servidor\"}",
+      "testes": [
+        {
+          "nome": "status 400",
+          "passou": false,
+          "motivo": "expected 500 to deeply equal 400"
+        },
+        {
+          "nome": "erro no formato { erro, codigo }",
+          "passou": false,
+          "motivo": "codigo: expected undefined to be a string"
+        }
+      ]
+    },
+    {
+      "pasta": "4. Cursos",
+      "nome": "Curso inexistente",
+      "metodo": "GET",
+      "descricao": "**2.6** Registro não encontrado → 404.",
+      "url": "http://localhost:3000/api/cursos/999999",
+      "status": 404,
+      "ms": 4,
+      "corpo": "{\"erro\":\"Registro não encontrado.\",\"codigo\":\"P2025\"}",
+      "testes": [
+        {
+          "nome": "status 404",
+          "passou": true
+        },
+        {
+          "nome": "erro no formato { erro, codigo }",
+          "passou": true
+        }
+      ]
+    },
+    {
+      "pasta": "5. Erros gerais",
+      "nome": "Rota inexistente",
+      "metodo": "GET",
+      "descricao": "**2.6** 404 no formato padrão. Hoje vem só `{ erro }`, sem `codigo`.",
+      "url": "http://localhost:3000/api/rota-que-nao-existe",
+      "status": 404,
+      "ms": 1,
+      "corpo": "{\"erro\":\"Rota não encontrada\"}",
+      "testes": [
+        {
+          "nome": "status 404",
+          "passou": true
+        },
+        {
+          "nome": "erro no formato { erro, codigo }",
+          "passou": false,
+          "motivo": "codigo: expected undefined to be a string"
+        }
+      ]
+    },
+    {
+      "pasta": "5. Erros gerais",
+      "nome": "JSON malformado",
+      "metodo": "POST",
+      "descricao": "**2.6** Corpo inválido → 400 no formato padrão.\n\n⚠ Só faz sentido enquanto as rotas de escrita existirem (ver decisão sobre RNF08).",
+      "url": "http://localhost:3000/api/cursos",
+      "status": 400,
+      "ms": 18,
+      "corpo": "{\"erro\":\"Expected double-quoted property name in JSON at position 18 (line 1 column 19)\"}",
+      "testes": [
+        {
+          "nome": "status 400",
+          "passou": true
+        },
+        {
+          "nome": "erro no formato { erro, codigo }",
+          "passou": false,
+          "motivo": "codigo: expected undefined to be a string"
+        }
+      ]
+    }
+  ]
+}
