@@ -1,13 +1,3 @@
-// Modelo inicial do banco — PONTO DE PARTIDA.
-// Ajuste para refletir o DER aprovado pelo time de Modelagem.
-//
-// Integridade (RNF11):
-//  - Toda relação é uma foreign key de verdade no PostgreSQL.
-//  - onDelete: Restrict impede apagar um curso/professor/sala que ainda está em uso.
-//  - @@unique impede duplicidades (ex.: duas turmas na mesma sala, mesmo dia e horário).
-//
-// Depois de alterar este arquivo:  npm run db:migrate -- --name descricao_da_mudanca
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -16,87 +6,81 @@ datasource db {
   provider = "postgresql"
 }
 
-model Curso {
-  id     Int     @id @default(autoincrement())
-  codigo String  @unique @db.VarChar(20)
-  nome   String  @db.VarChar(120)
-  turmas Turma[]
-
-  criadoEm     DateTime @default(now()) @map("criado_em")
-  atualizadoEm DateTime @updatedAt @map("atualizado_em")
-
-  @@map("cursos")
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model aula {
+  id_aula       Int        @id @default(autoincrement())
+  id_sala       Int
+  id_curso      Int
+  id_disciplina Int
+  id_professor  Int
+  id_turma      Int
+  dia_semana    String     @db.VarChar(10)
+  periodo       String     @db.VarChar(12)
+  hora_inicio   DateTime   @db.Time(6)
+  hora_termino  DateTime   @db.Time(6)
+  curso         curso      @relation(fields: [id_curso], references: [id_curso], onDelete: NoAction, onUpdate: NoAction, map: "fk_aula_curso")
+  disciplina    disciplina @relation(fields: [id_disciplina], references: [id_disciplina], onDelete: NoAction, onUpdate: NoAction, map: "fk_aula_disciplina")
+  professor     professor  @relation(fields: [id_professor], references: [id_professor], onDelete: NoAction, onUpdate: NoAction, map: "fk_aula_professor")
+  sala          sala       @relation(fields: [id_sala], references: [id_sala], onDelete: NoAction, onUpdate: NoAction, map: "fk_aula_sala")
+  turma         turma      @relation(fields: [id_turma], references: [id_turma], onDelete: NoAction, onUpdate: NoAction, map: "fk_aula_turma")
 }
 
-model Professor {
-  id     Int     @id @default(autoincrement())
-  nome   String  @db.VarChar(120)
-  email  String  @unique @db.VarChar(160)
-  turmas Turma[]
-
-  criadoEm     DateTime @default(now()) @map("criado_em")
-  atualizadoEm DateTime @updatedAt @map("atualizado_em")
-
-  @@map("professores")
+model curso {
+  id_curso Int    @id @default(autoincrement())
+  nome     String @db.VarChar(100)
+  sigla    String @db.VarChar(10)
+  aula     aula[]
 }
 
-model Sala {
-  id         Int       @id @default(autoincrement())
-  codigo     String    @unique @db.VarChar(20) // ex.: "B-101"
-  bloco      String?   @db.VarChar(20)
-  capacidade Int
-  horarios   Horario[]
-
-  criadoEm     DateTime @default(now()) @map("criado_em")
-  atualizadoEm DateTime @updatedAt @map("atualizado_em")
-
-  @@map("salas")
+model disciplina {
+  id_disciplina Int    @id @default(autoincrement())
+  nome          String @db.VarChar(100)
+  aula          aula[]
 }
 
-model Turma {
-  id          Int       @id @default(autoincrement())
-  codigo      String    @db.VarChar(20)
-  semestre    String    @db.VarChar(6) // ex.: "2026.2"
-  cursoId     Int       @map("curso_id")
-  professorId Int       @map("professor_id")
-  curso       Curso     @relation(fields: [cursoId], references: [id], onDelete: Restrict)
-  professor   Professor @relation(fields: [professorId], references: [id], onDelete: Restrict)
-  horarios    Horario[]
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model imagem_local {
+  id_imagem      Int     @id @default(autoincrement())
+  id_local       Int
+  tipo_imagem    String  @db.VarChar(12)
+  caminho_imagem String  @db.VarChar(500)
+  descricao      String? @db.VarChar(255)
+  ordem_exibicao Int     @default(0) @db.SmallInt
+  local          local   @relation(fields: [id_local], references: [id_local], onDelete: Cascade, map: "fk_imagem_local")
 
-  criadoEm     DateTime @default(now()) @map("criado_em")
-  atualizadoEm DateTime @updatedAt @map("atualizado_em")
-
-  @@unique([codigo, semestre])
-  @@map("turmas")
+  @@unique([id_local, caminho_imagem], map: "uq_imagem_local")
 }
 
-enum DiaSemana {
-  SEGUNDA
-  TERCA
-  QUARTA
-  QUINTA
-  SEXTA
-  SABADO
-
-  @@map("dia_semana")
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model local {
+  id_local         Int            @id @default(autoincrement())
+  tipo_local       String         @db.VarChar(20)
+  id_local_pai     Int?
+  nome             String         @db.VarChar(100)
+  codigo           String?        @unique @db.VarChar(30)
+  bloco            String?        @db.VarChar(50)
+  andar            Int?
+  localizacao_mapa String         @db.VarChar(255)
+  imagem_local     imagem_local[]
+  local            local?         @relation("localTolocal", fields: [id_local_pai], references: [id_local], onUpdate: NoAction, map: "fk_local_pai")
+  other_local      local[]        @relation("localTolocal")
+  sala             sala?
 }
 
-model Horario {
-  id         Int       @id @default(autoincrement())
-  turmaId    Int       @map("turma_id")
-  salaId     Int       @map("sala_id")
-  diaSemana  DiaSemana @map("dia_semana")
-  horaInicio String    @map("hora_inicio") @db.Char(5) // "HH:MM"
-  horaFim    String    @map("hora_fim") @db.Char(5) // "HH:MM"
-  turma      Turma     @relation(fields: [turmaId], references: [id], onDelete: Cascade)
-  sala       Sala      @relation(fields: [salaId], references: [id], onDelete: Restrict)
+model professor {
+  id_professor Int    @id @default(autoincrement())
+  nome         String @db.VarChar(100)
+  aula         aula[]
+}
 
-  criadoEm     DateTime @default(now()) @map("criado_em")
-  atualizadoEm DateTime @updatedAt @map("atualizado_em")
+model sala {
+  id_sala Int    @id
+  aula    aula[]
+  local   local  @relation(fields: [id_sala], references: [id_local], onDelete: Cascade, onUpdate: NoAction, map: "fk_sala_local")
+}
 
-  // Uma sala não pode receber duas turmas no mesmo dia e horário de início,
-  // e uma turma não pode estar em dois lugares ao mesmo tempo.
-  @@unique([salaId, diaSemana, horaInicio])
-  @@unique([turmaId, diaSemana, horaInicio])
-  @@map("horarios")
+model turma {
+  id_turma Int    @id @default(autoincrement())
+  semestre Int
+  aula     aula[]
 }
