@@ -10,6 +10,7 @@ API do sistema de alocação acadêmica (salas, cursos, turmas, professores e ho
 
 > 🔗 Front-end: [MapaUniara-2026/projeto-frontend](https://github.com/MapaUniara-2026/projeto-frontend)
 > 📁 Modelagem (UML, DER, requisitos): **[link da pasta do Drive]**
+> 📘 **Documentação dos endpoints: [docs/API.md](docs/API.md)**
 
 ---
 
@@ -86,7 +87,10 @@ src/
 ├── local.js             # sobe o servidor localmente
 ├── lib/prisma.js        # conexão com o banco
 ├── middlewares/erros.js # converte erros do banco em respostas HTTP
-└── routes/              # uma rota por entidade (cursos.routes.js é o modelo)
+└── routes/
+    ├── index.js         # monta todas as rotas sob /api (adicione novas entidades aqui)
+    └── *.routes.js      # uma rota por entidade
+docs/API.md              # documentação dos endpoints (atualizar no mesmo PR que alterar uma rota)
 scripts/vercel-build.js  # build na Vercel (gera o client + migra nas branches de ambiente)
 ```
 
