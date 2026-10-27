@@ -11,6 +11,7 @@
 ## Checklist
 - [ ] Testei localmente (`npm run dev`)
 - [ ] `npm run lint` passou
+- [ ] Se criei ou alterei uma rota: atualizei o `docs/API.md` neste PR
 - [ ] Se alterei o `schema.prisma`: criei a migração (`npm run db:migrate -- --name ...`) e ela está no PR
 - [ ] Se for para **main (PRD)**: a versão no `package.json` foi atualizada
 
