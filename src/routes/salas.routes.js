@@ -17,6 +17,11 @@ const CAMPOS_SALA = {
   localizacaoMapa: true,
 }
 
+// Áreas que aparecem no mapa mas nunca recebem aula (corredores, escadas, banheiros...).
+// Ficam fora da ocupação para não aparecerem como "salas livres".
+// Ajustar quando a lista oficial de tipos for definida (tarefa 1.1).
+const TIPOS_SEM_AULA = ['CIRCULACAO', 'SERVICO']
+
 // GET /api/salas?andar=1&tipo=LABORATORIO&busca=104
 // Lista para o mapa e a busca, SEM fotografias (RNF04). Filtros opcionais e combináveis.
 router.get('/', async (req, res) => {
@@ -75,7 +80,11 @@ router.get('/ocupacao', async (req, res) => {
       })
     : []
 
-  const salas = await prisma.sala.findMany({ select: CAMPOS_SALA, orderBy: { codigo: 'asc' } })
+  const salas = await prisma.sala.findMany({
+    where: { tipo: { notIn: TIPOS_SEM_AULA } },
+    select: CAMPOS_SALA,
+    orderBy: { codigo: 'asc' },
+  })
   const aulaPorSala = new Map(aulas.map((a) => [a.sala.codigo, a]))
 
   res.json(
