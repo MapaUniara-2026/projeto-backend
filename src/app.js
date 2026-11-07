@@ -2,6 +2,7 @@ import 'dotenv/config'
 import cors from 'cors'
 import express from 'express'
 import { tratarErros } from './middlewares/erros.js'
+import aulasRoutes from './routes/aulas.routes.js'
 import cursosRoutes from './routes/cursos.routes.js'
 import healthRoutes from './routes/health.routes.js'
 import salasRoutes from './routes/salas.routes.js'
@@ -22,6 +23,7 @@ app.get('/', (req, res) => res.json({ mensagem: 'API do Projeto da Faculdade' })
 app.use('/api/health', healthRoutes)
 app.use('/api/cursos', cursosRoutes)
 app.use('/api/salas', salasRoutes)
+app.use('/api/aulas', aulasRoutes)
 
 app.use((req, res) => res.status(404).json({ erro: 'Rota não encontrada' }))
 app.use(tratarErros)
