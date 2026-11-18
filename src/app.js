@@ -18,7 +18,7 @@ const origens = (process.env.CORS_ORIGIN ?? 'http://localhost:5173')
   .filter(Boolean)
   .map((o) => new RegExp(`^${o.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '[a-z0-9-]+')}$`))
 app.use(cors({ origin: origens }))
-app.use(express.json())
+// Sem express.json(): a API é só de consulta (RNF08) e nenhuma rota lê corpo de requisição.
 
 app.get('/', (req, res) => res.json({ mensagem: 'API do Projeto da Faculdade' }))
 app.use('/api/health', healthRoutes)
