@@ -1,29 +1,35 @@
-import { ErroValidacao } from '../middlewares/erros.js'
+// Consulta de aulas com filtros combináveis (contrato 2.1, 2.3 e 2.5), usada por /api/aulas e /api/salas/ocupacao.
+// Filtros do contrato: curso (sigla), dia, periodo e sala (código).
+// Filtros extras: bloco, turma (nome), professor (parte do nome), semestre, inicio e fim ("HH:MM").
+import { formatarHora, paraTime } from '../lib/horarios.js'
+import { diaSemana, hora, id, inteiro, periodo } from '../lib/validacao.js'
+import { ErroNaoEncontrado, ErroValidacao } from '../middlewares/erros.js'
 
-const DIAS_VALIDOS = new Set(['SEGUNDA', 'TERCA', 'QUARTA', 'QUINTA', 'SEXTA', 'SABADO'])
-const PERIODOS = {
-  MATUTINO: { inicio: '05:00', fim: '12:00' },
-  VESPERTINO: { inicio: '12:00', fim: '18:00' },
-  NOTURNO: { inicio: '18:00', fim: '24:00' },
-}
 const CAMPOS = new Set([
   'dia', 'periodo', 'sala', 'bloco', 'curso', 'turma', 'professor', 'semestre', 'inicio', 'fim',
 ])
-const HORA = /^(?:[01]\d|2[0-3]):[0-5]\d$/
 
-export const RELACOES_ACADEMICAS = {
-  sala: {
-    select: { id: true, codigo: true, bloco: true, capacidade: true },
-  },
-  turma: {
-    select: {
-      id: true,
-      codigo: true,
-      semestre: true,
-      curso: { select: { id: true, codigo: true, nome: true } },
-      professor: { select: { id: true, nome: true } },
-    },
-  },
+// O que vem de cada relação (2.1): só o necessário para a tela, sem ids internos nem datas de auditoria.
+export const SELECT_AULA = {
+  id: true,
+  diaSemana: true,
+  periodo: true,
+  horaInicio: true,
+  horaTermino: true,
+  sala: { select: { codigo: true, nome: true, andar: true } },
+  curso: { select: { sigla: true, nome: true } },
+  disciplina: { select: { nome: true } },
+  professor: { select: { nome: true } },
+  turma: { select: { nome: true, semestre: true } },
+}
+
+// O banco devolve TIME como Date; o contrato pede "HH:MM".
+export function formatarAula(aula) {
+  return {
+    ...aula,
+    horaInicio: formatarHora(aula.horaInicio),
+    horaTermino: formatarHora(aula.horaTermino),
+  }
 }
 
 function lerTexto(valor, nome) {
@@ -42,25 +48,11 @@ export function normalizarFiltros(query = {}) {
   const filtros = {}
   for (const nome of CAMPOS) filtros[nome] = lerTexto(query[nome], nome)
 
-  if (filtros.dia) {
-    filtros.dia = filtros.dia.toUpperCase()
-    if (!DIAS_VALIDOS.has(filtros.dia)) {
-      throw new ErroValidacao('Dia inválido. Use SEGUNDA, TERCA, QUARTA, QUINTA, SEXTA ou SABADO.')
-    }
-  }
-
-  if (filtros.periodo) {
-    filtros.periodo = filtros.periodo.toUpperCase()
-    if (!Object.hasOwn(PERIODOS, filtros.periodo)) {
-      throw new ErroValidacao('Período inválido. Use MATUTINO, VESPERTINO ou NOTURNO.')
-    }
-  }
-
-  for (const nome of ['inicio', 'fim']) {
-    if (filtros[nome] && !HORA.test(filtros[nome])) {
-      throw new ErroValidacao(`O filtro "${nome}" deve estar no formato HH:MM.`)
-    }
-  }
+  if (filtros.dia) filtros.dia = diaSemana(filtros.dia)
+  if (filtros.periodo) filtros.periodo = periodo(filtros.periodo)
+  if (filtros.semestre) filtros.semestre = inteiro(filtros.semestre, 'semestre', { min: 1, max: 20 })
+  if (filtros.inicio) filtros.inicio = hora(filtros.inicio, 'inicio')
+  if (filtros.fim) filtros.fim = hora(filtros.fim, 'fim')
 
   if (filtros.inicio && filtros.fim && filtros.inicio >= filtros.fim) {
     throw new ErroValidacao('O horário de início deve ser anterior ao horário de fim.')
@@ -69,87 +61,51 @@ export function normalizarFiltros(query = {}) {
   return filtros
 }
 
+const igual = (valor) => ({ equals: valor, mode: 'insensitive' })
+
 export function montarConsultaAcademica(query = {}) {
   const filtros = normalizarFiltros(query)
   const where = {}
   const and = []
 
   if (filtros.dia) where.diaSemana = filtros.dia
+  if (filtros.periodo) where.periodo = filtros.periodo
+  if (filtros.curso) where.curso = { is: { sigla: igual(filtros.curso) } }
+  if (filtros.professor) where.professor = { is: { nome: { contains: filtros.professor, mode: 'insensitive' } } }
 
   const local = {}
-  if (filtros.sala) local.codigo = { equals: filtros.sala, mode: 'insensitive' }
-  if (filtros.bloco) local.bloco = { equals: filtros.bloco, mode: 'insensitive' }
+  if (filtros.sala) local.codigo = igual(filtros.sala)
+  if (filtros.bloco) local.bloco = igual(filtros.bloco)
   if (Object.keys(local).length) where.sala = { is: local }
 
-  const dadosTurma = {}
-  if (filtros.turma) dadosTurma.codigo = { equals: filtros.turma, mode: 'insensitive' }
-  if (filtros.semestre) dadosTurma.semestre = filtros.semestre
-  if (filtros.curso) {
-    dadosTurma.curso = {
-      is: {
-        OR: [
-          { codigo: { equals: filtros.curso, mode: 'insensitive' } },
-          { nome: { contains: filtros.curso, mode: 'insensitive' } },
-        ],
-      },
-    }
-  }
-  if (filtros.professor) {
-    dadosTurma.professor = { is: { nome: { contains: filtros.professor, mode: 'insensitive' } } }
-  }
-  if (Object.keys(dadosTurma).length) where.turma = { is: dadosTurma }
+  const turma = {}
+  if (filtros.turma) turma.nome = igual(filtros.turma)
+  if (filtros.semestre) turma.semestre = filtros.semestre
+  if (Object.keys(turma).length) where.turma = { is: turma }
 
-  if (filtros.periodo) {
-    const { inicio, fim } = PERIODOS[filtros.periodo]
-    and.push({ horaInicio: { gte: inicio } })
-    and.push({ horaInicio: { lt: fim } })
-  }
-
-  if (filtros.inicio) and.push({ horaInicio: { gte: filtros.inicio } })
-  if (filtros.fim) and.push({ horaFim: { lte: filtros.fim } })
+  if (filtros.inicio) and.push({ horaInicio: { gte: paraTime(filtros.inicio, 'inicio') } })
+  if (filtros.fim) and.push({ horaTermino: { lte: paraTime(filtros.fim, 'fim') } })
   if (and.length) where.AND = and
 
   return {
     where,
-    include: RELACOES_ACADEMICAS,
+    select: SELECT_AULA,
+    // O enum segue a ordem em que foi declarado: SEGUNDA, TERCA, ... SEXTA.
     orderBy: [{ diaSemana: 'asc' }, { horaInicio: 'asc' }, { sala: { codigo: 'asc' } }],
   }
 }
 
-export function formatarAula(horario) {
-  return {
-    id: horario.id,
-    diaSemana: horario.diaSemana,
-    horaInicio: horario.horaInicio,
-    horaFim: horario.horaFim,
-    sala: horario.sala,
-    turma: {
-      id: horario.turma.id,
-      codigo: horario.turma.codigo,
-      semestre: horario.turma.semestre,
-    },
-    curso: horario.turma.curso,
-    professor: horario.turma.professor,
-  }
-}
-
+// Busca sem resultado devolve [] (não é 404).
 export async function consultarAulas(prisma, query = {}) {
-  const consulta = montarConsultaAcademica(query)
-  const horarios = await prisma.horario.findMany(consulta)
-  return horarios.map(formatarAula)
+  const aulas = await prisma.aula.findMany(montarConsultaAcademica(query))
+  return aulas.map(formatarAula)
 }
 
 export async function consultarAulaPorId(prisma, idInformado) {
-  if (!/^[1-9]\d*$/.test(String(idInformado))) {
-    throw new ErroValidacao('O ID da aula deve ser um número inteiro positivo.')
-  }
-  const id = Number(idInformado)
-  if (!Number.isSafeInteger(id)) {
-    throw new ErroValidacao('O ID da aula deve ser um número inteiro positivo válido.')
-  }
-  const horario = await prisma.horario.findUniqueOrThrow({
-    where: { id },
-    include: RELACOES_ACADEMICAS,
+  const aula = await prisma.aula.findUnique({
+    where: { id: id(idInformado) },
+    select: SELECT_AULA,
   })
-  return formatarAula(horario)
+  if (!aula) throw new ErroNaoEncontrado('Aula não encontrada.')
+  return formatarAula(aula)
 }

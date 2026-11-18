@@ -16,36 +16,18 @@ datasource db {
   provider = "postgresql"
 }
 
-model Curso {
-  id     Int     @id @default(autoincrement())
-  codigo String  @unique @db.VarChar(20)
-  nome   String  @db.VarChar(120)
-  turmas Turma[]
-
-  criadoEm     DateTime @default(now()) @map("criado_em")
-  atualizadoEm DateTime @updatedAt @map("atualizado_em")
-
-  @@map("cursos")
-}
-
-model Professor {
-  id     Int     @id @default(autoincrement())
-  nome   String  @db.VarChar(120)
-  email  String  @unique @db.VarChar(160)
-  turmas Turma[]
-
-  criadoEm     DateTime @default(now()) @map("criado_em")
-  atualizadoEm DateTime @updatedAt @map("atualizado_em")
-
-  @@map("professores")
-}
+// ---------- Mapa (D1) ----------
 
 model Sala {
-  id         Int       @id @default(autoincrement())
-  codigo     String    @unique @db.VarChar(20) // ex.: "B-101"
-  bloco      String?   @db.VarChar(20)
-  capacidade Int
-  horarios   Horario[]
+  id              Int      @id @default(autoincrement()) @map("id_sala")
+  nome            String   @db.VarChar(120)
+  codigo          String   @unique @db.VarChar(20) // ex.: "BL4-104"
+  bloco           String   @db.VarChar(20)
+  andar           Int
+  tipo            String   @db.VarChar(30) // ex.: "SALA_DE_AULA", "LABORATORIO"
+  localizacaoMapa String   @map("localizacao_mapa") @db.VarChar(255)
+  imagens         Imagem[]
+  aulas           Aula[]
 
   criadoEm     DateTime @default(now()) @map("criado_em")
   atualizadoEm DateTime @updatedAt @map("atualizado_em")
@@ -53,20 +35,66 @@ model Sala {
   @@map("salas")
 }
 
-model Turma {
-  id          Int       @id @default(autoincrement())
-  codigo      String    @db.VarChar(20)
-  semestre    String    @db.VarChar(6) // ex.: "2026.2"
-  cursoId     Int       @map("curso_id")
-  professorId Int       @map("professor_id")
-  curso       Curso     @relation(fields: [cursoId], references: [id], onDelete: Restrict)
-  professor   Professor @relation(fields: [professorId], references: [id], onDelete: Restrict)
-  horarios    Horario[]
+model Imagem {
+  id        Int    @id @default(autoincrement()) @map("id_imagem")
+  salaId    Int    @map("id_sala")
+  url       String @map("url_imagem") @db.VarChar(500)
+  // Fora do DER: o contrato (2.4) e o RNF10 exigem texto alternativo. Levar para a Modelagem.
+  descricao String @db.VarChar(255)
+  sala      Sala   @relation(fields: [salaId], references: [id], onDelete: Cascade)
 
   criadoEm     DateTime @default(now()) @map("criado_em")
   atualizadoEm DateTime @updatedAt @map("atualizado_em")
 
-  @@unique([codigo, semestre])
+  @@index([salaId])
+  @@map("imagens")
+}
+
+// ---------- Acadêmico (D2) ----------
+
+model Curso {
+  id    Int    @id @default(autoincrement()) @map("id_curso")
+  nome  String @db.VarChar(120)
+  sigla String @unique @db.VarChar(20) // ex.: "SI" — usada no filtro ?curso=
+  aulas Aula[]
+
+  criadoEm     DateTime @default(now()) @map("criado_em")
+  atualizadoEm DateTime @updatedAt @map("atualizado_em")
+
+  @@map("cursos")
+}
+
+model Disciplina {
+  id    Int    @id @default(autoincrement()) @map("id_disciplina")
+  nome  String @db.VarChar(120)
+  aulas Aula[]
+
+  criadoEm     DateTime @default(now()) @map("criado_em")
+  atualizadoEm DateTime @updatedAt @map("atualizado_em")
+
+  @@map("disciplinas")
+}
+
+model Professor {
+  id    Int    @id @default(autoincrement()) @map("id_professor")
+  nome  String @db.VarChar(120)
+  aulas Aula[]
+
+  criadoEm     DateTime @default(now()) @map("criado_em")
+  atualizadoEm DateTime @updatedAt @map("atualizado_em")
+
+  @@map("professores")
+}
+
+model Turma {
+  id       Int    @id @default(autoincrement()) @map("id_turma")
+  nome     String @db.VarChar(60) // está no UML; o DER lógico só tem semestre
+  semestre Int // ex.: 3 (3º semestre)
+  aulas    Aula[]
+
+  criadoEm     DateTime @default(now()) @map("criado_em")
+  atualizadoEm DateTime @updatedAt @map("atualizado_em")
+
   @@map("turmas")
 }
 
@@ -76,27 +104,45 @@ enum DiaSemana {
   QUARTA
   QUINTA
   SEXTA
-  SABADO
 
   @@map("dia_semana")
 }
 
-model Horario {
-  id         Int       @id @default(autoincrement())
-  turmaId    Int       @map("turma_id")
-  salaId     Int       @map("sala_id")
-  diaSemana  DiaSemana @map("dia_semana")
-  horaInicio String    @map("hora_inicio") @db.Char(5) // "HH:MM"
-  horaFim    String    @map("hora_fim") @db.Char(5) // "HH:MM"
-  turma      Turma     @relation(fields: [turmaId], references: [id], onDelete: Cascade)
-  sala       Sala      @relation(fields: [salaId], references: [id], onDelete: Restrict)
+enum Periodo {
+  MATUTINO
+  VESPERTINO
+  NOTURNO
+
+  @@map("periodo")
+}
+
+model Aula {
+  id           Int       @id @default(autoincrement()) @map("id_aula")
+  salaId       Int       @map("id_sala")
+  cursoId      Int       @map("id_curso")
+  disciplinaId Int       @map("id_disciplina")
+  professorId  Int       @map("id_professor")
+  turmaId      Int       @map("id_turma")
+  diaSemana    DiaSemana @map("dia_semana")
+  periodo      Periodo
+  horaInicio   DateTime  @map("hora_inicio") @db.Time(0)
+  horaTermino  DateTime  @map("hora_termino") @db.Time(0)
+
+  sala       Sala       @relation(fields: [salaId], references: [id], onDelete: Restrict)
+  curso      Curso      @relation(fields: [cursoId], references: [id], onDelete: Restrict)
+  disciplina Disciplina @relation(fields: [disciplinaId], references: [id], onDelete: Restrict)
+  professor  Professor  @relation(fields: [professorId], references: [id], onDelete: Restrict)
+  turma      Turma      @relation(fields: [turmaId], references: [id], onDelete: Restrict)
 
   criadoEm     DateTime @default(now()) @map("criado_em")
   atualizadoEm DateTime @updatedAt @map("atualizado_em")
 
-  // Uma sala não pode receber duas turmas no mesmo dia e horário de início,
-  // e uma turma não pode estar em dois lugares ao mesmo tempo.
+  // Mesma sala ou mesma turma não começam duas aulas no mesmo dia e horário.
+  // Sobreposição parcial (19:00–22:30 x 20:00–21:00) é checada na API (validarConflito).
   @@unique([salaId, diaSemana, horaInicio])
   @@unique([turmaId, diaSemana, horaInicio])
-  @@map("horarios")
+  @@index([cursoId])
+  @@index([disciplinaId])
+  @@index([professorId])
+  @@map("aulas")
 }

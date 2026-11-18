@@ -88,8 +88,9 @@ src/
 │   ├── prisma.js        # conexão com o banco
 │   ├── validacao.js     # valida e normaliza params, query e body
 │   ├── respostas.js     # formato de cada resposta (select + mapper)
-│   └── horario.js       # "agora" no fuso do campus, períodos e horas HH:MM
+│   └── horarios.js      # dias, períodos, horas HH:MM <-> TIME e o "agora" em São Paulo
 ├── middlewares/erros.js # padrão de erros da API (ver seção 7)
+├── services/            # consulta de aulas com filtros (usada por /api/aulas)
 ├── validators/          # regras de horários: intervalo válido e conflitos (ver seção 7.4)
 └── routes/              # uma rota por entidade (cursos.routes.js é o modelo)
 tests/                   # testes (node:test) — npm test
@@ -218,7 +219,7 @@ Valide **tudo** que vem de `req.params`, `req.query` e `req.body` antes de ir ao
 
 | Função | Aceita | Devolve |
 |---|---|---|
-| `diaSemana` | `SEGUNDA`, `TERCA`, `QUARTA`, `QUINTA`, `SEXTA`, `SABADO` (aceita minúsculas e acento: `terça`) | `'TERCA'` |
+| `diaSemana` | `SEGUNDA` a `SEXTA` (RN04; aceita minúsculas e acento: `terça`) | `'TERCA'` |
 | `periodo` | `MATUTINO` (até 11:59), `VESPERTINO` (12:00–17:59), `NOTURNO` (a partir de 18:00) | `'NOTURNO'` |
 | `hora` | `HH:MM`, de `00:00` a `23:59` | `'19:00'` |
 | `codigoSala` | formato do mapa, ex.: `BL4-104` | `'BL4-104'` |
@@ -227,28 +228,30 @@ Valide **tudo** que vem de `req.params`, `req.query` e `req.body` antes de ir ao
 | `busca` | texto de até 100 caracteres | texto sem espaços nas pontas |
 | `id`, `inteiro`, `texto`, `corpo` | genéricos (id positivo, inteiro com faixa, texto com tamanho máximo, corpo JSON obrigatório) | |
 
-O "agora" da ocupação das salas vem de `agoraNoCampus()` (`src/lib/horario.js`), que usa o fuso `America/Sao_Paulo` via `Intl` — a Vercel roda em UTC e não permite definir `TZ`.
+O "agora" da ocupação das salas vem de `agoraEmSaoPaulo()` (`src/lib/horarios.js`), que usa o fuso `America/Sao_Paulo` via `Intl` — a Vercel roda em UTC e não permite definir `TZ`. Sábado e domingo voltam como dia `null` (sem aulas).
 
 ### 7.3 Respostas (`src/lib/respostas.js`)
 
 - Toda rota busca com `select` e monta a resposta com o mapper da entidade: nada de devolver o objeto do Prisma direto (assim `criadoEm`/`atualizadoEm` não vazam).
 - Campo sem valor sai como `null`, **nunca omitido** (use `?? null`).
-- Listas sem itens saem como `[]` (ex.: `fotos: []`); fotos no formato `[{ "url": "...", "descricao": "..." }]`.
-- Imagem indisponível não é erro: foto sem URL é descartada e a sala sem fotos sai com `fotos: []` — o front mostra "Foto indisponível" (RF17).
+- Listas sem itens saem como `[]` (ex.: `fotos: []`); fotos no formato `[{ "url": "...", "descricao": "..." }]`, só no detalhe da sala (a lista não traz fotos, RNF04).
+- Sala sem fotos sai com `fotos: []` — o front mostra "Foto indisponível" (RF17).
 - Horas sempre como `"HH:MM"` (use `formatarHora`).
 
 ### 7.4 Horários (`/api/horarios`)
+
+Cada horário é uma linha da tabela `aulas`, com os ids das relações. Para a tela, use `/api/aulas`.
 
 | Rota | O que faz |
 |---|---|
 | `GET /api/horarios` | Lista os horários. Filtros opcionais: `?dia=SEGUNDA`, `?salaId=1`, `?turmaId=1` |
 | `GET /api/horarios/:id` | Detalha um horário (404 se não existir) |
-| `POST /api/horarios` | Cadastra `{ turmaId, salaId, diaSemana, horaInicio, horaFim }` |
+| `POST /api/horarios` | Cadastra `{ salaId, cursoId, disciplinaId, professorId, turmaId, diaSemana, horaInicio, horaTermino, periodo? }` (sem `periodo`, vale a faixa da `horaInicio`) |
 
 Regras do cadastro (`src/validators/horarios.js` e `src/validators/conflitos-horarios.js`):
 
-- `diaSemana` de segunda a sábado e horas em `HH:MM`, com `horaInicio` antes de `horaFim` — senão **400**.
-- Turma ou sala que não existe — **404**.
+- `diaSemana` de segunda a sexta e horas em `HH:MM`, com `horaInicio` antes de `horaTermino` — senão **400**.
+- Sala, curso, disciplina, professor ou turma que não existe — **404**.
 - **409 CONFLITO** se a sala já tiver aula sobreposta no mesmo dia, ou se a turma já tiver aula sobreposta em qualquer sala. Dois horários se sobrepõem quando `inicioA < fimB` e `inicioB < fimA`; aulas consecutivas (uma termina 20:40, a outra começa 20:40) não conflitam.
 
 O banco só impede duas aulas com a **mesma hora de início** (`@@unique`); a sobreposição parcial é verificada pela API antes de gravar.

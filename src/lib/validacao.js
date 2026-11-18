@@ -3,11 +3,12 @@
 // ou lança ErroValidacao (400 / PARAMETRO_INVALIDO) com uma mensagem para o usuário.
 // Não dependem do schema do banco: servem para as rotas atuais e para as que vêm com o DER.
 import { ErroValidacao } from '../middlewares/erros.js'
+import { DIAS, HHMM as REGEX_HORA, PERIODOS } from './horarios.js'
 
-export const DIAS_SEMANA = ['SEGUNDA', 'TERCA', 'QUARTA', 'QUINTA', 'SEXTA', 'SABADO']
-export const PERIODOS = ['MATUTINO', 'VESPERTINO', 'NOTURNO']
+// Uma lista só para a API toda: SEGUNDA a SEXTA (RN04), igual ao enum do banco.
+export const DIAS_SEMANA = DIAS
+export { PERIODOS }
 
-const REGEX_HORA = /^([01]\d|2[0-3]):[0-5]\d$/
 const REGEX_CODIGO_SALA = /^[A-Z]+\d*-\d+[A-Z]?$/ // ex.: BL4-104 (mapa), B-101
 const REGEX_SIGLA_CURSO = /^[A-Z0-9]{2,20}$/ // ex.: SI, ES, EC
 const MAIOR_INT = 2_147_483_647 // limite do Int (int4) do PostgreSQL

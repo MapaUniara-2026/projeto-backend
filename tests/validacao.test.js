@@ -9,7 +9,7 @@ describe('validação de entrada', () => {
   it('dia: normaliza maiúsculas e acentos', () => {
     assert.equal(v.diaSemana('segunda'), 'SEGUNDA')
     assert.equal(v.diaSemana(' Terça '), 'TERCA')
-    assert.equal(v.diaSemana('sábado'), 'SABADO')
+    invalido(() => v.diaSemana('sábado')) // RN04: só SEGUNDA a SEXTA
     invalido(() => v.diaSemana('DOMINGO'))
     invalido(() => v.diaSemana('seg'))
     invalido(() => v.diaSemana(undefined))

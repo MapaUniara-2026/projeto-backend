@@ -1,16 +1,16 @@
 // CRUD completo de cursos — use como modelo para as outras entidades.
-// TODO(RNF08): POST/PUT/DELETE estão abertos a qualquer um; combinar com o time se saem ou ganham autenticação.
+// TODO(RNF08): POST/PUT/DELETE estão abertos a qualquer um; tarefa 3.7 decide se saem ou ganham autenticação.
 import { Router } from 'express'
 import { prisma } from '../lib/prisma.js'
-import { cursoDetalheResposta, cursoResposta, selectCurso, selectCursoDetalhe } from '../lib/respostas.js'
+import { cursoResposta, selectCurso } from '../lib/respostas.js'
 import { corpo, id, siglaCurso, texto } from '../lib/validacao.js'
 import { ErroNaoEncontrado } from '../middlewares/erros.js'
 
 const router = Router()
 
 function validar(body) {
-  const { codigo, nome } = corpo(body)
-  return { codigo: siglaCurso(codigo, 'codigo'), nome: texto(nome, 'nome', { max: 120 }) }
+  const { sigla, nome } = corpo(body)
+  return { sigla: siglaCurso(sigla, 'sigla'), nome: texto(nome, 'nome', { max: 120 }) }
 }
 
 router.get('/', async (req, res) => {
@@ -19,9 +19,9 @@ router.get('/', async (req, res) => {
 })
 
 router.get('/:id', async (req, res) => {
-  const curso = await prisma.curso.findUnique({ where: { id: id(req.params.id) }, select: selectCursoDetalhe })
+  const curso = await prisma.curso.findUnique({ where: { id: id(req.params.id) }, select: selectCurso })
   if (!curso) throw new ErroNaoEncontrado('Curso não encontrado.')
-  res.json(cursoDetalheResposta(curso))
+  res.json(cursoResposta(curso))
 })
 
 router.post('/', async (req, res) => {
@@ -39,7 +39,7 @@ router.put('/:id', async (req, res) => {
 })
 
 router.delete('/:id', async (req, res) => {
-  // Se o curso tiver turmas, o banco recusa (onDelete: Restrict) e a API responde 409.
+  // Se o curso tiver aulas, o banco recusa (onDelete: Restrict) e a API responde 409.
   await prisma.curso.delete({ where: { id: id(req.params.id) } })
   res.status(204).end()
 })

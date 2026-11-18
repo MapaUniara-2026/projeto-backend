@@ -24,7 +24,7 @@ describe('API', () => {
   })
 
   it('JSON malformado responde 400 PARAMETRO_INVALIDO', async () => {
-    const [status, corpo] = await api.pedir('/api/cursos', json('{"codigo": "SI",'))
+    const [status, corpo] = await api.pedir('/api/cursos', json('{"sigla": "SI",'))
     assert.equal(status, 400)
     assert.equal(corpo.codigo, 'PARAMETRO_INVALIDO')
   })
@@ -32,9 +32,9 @@ describe('API', () => {
   it('corpo ausente ou campos inválidos respondem 400 antes de chegar no banco', async () => {
     const [semCorpo] = await api.pedir('/api/cursos', { method: 'POST' })
     assert.equal(semCorpo, 400)
-    const [status, corpo] = await api.pedir('/api/salas', json('{"codigo": "sala 1", "capacidade": 10}'))
+    const [status, corpo] = await api.pedir('/api/cursos', json('{"sigla": "Sistemas de Informação", "nome": "SI"}'))
     assert.equal(status, 400)
-    assert.match(corpo.erro, /BL4-104/)
+    assert.match(corpo.erro, /sigla/)
   })
 
   it('id inválido responde 400', async () => {
@@ -48,14 +48,26 @@ describe('API', () => {
     assert.deepEqual([status, corpo], [404, { erro: 'Curso não encontrado.', codigo: 'NAO_ENCONTRADO' }])
   })
 
-  it('horário com turma ou sala inexistente responde 404 sem gravar nada', async () => {
-    const horario = (turmaId, salaId) =>
-      JSON.stringify({ turmaId, salaId, diaSemana: 'QUARTA', horaInicio: '19:00', horaFim: '20:00' })
-    const [statusTurma, turma] = await api.pedir('/api/horarios', json(horario(2147483647, 1)))
-    assert.deepEqual([statusTurma, turma], [404, { erro: 'Turma não encontrada.', codigo: 'NAO_ENCONTRADO' }])
-    // Sem seed (ex.: no CI) a turma 1 também pode não existir, então só o código é garantido.
-    const [statusSala, sala] = await api.pedir('/api/horarios', json(horario(1, 2147483647)))
-    assert.deepEqual([statusSala, sala.codigo], [404, 'NAO_ENCONTRADO'])
+  it('horário com relação inexistente responde 404 sem gravar nada', async () => {
+    const inexistente = 2147483647
+    const horario = JSON.stringify({
+      salaId: inexistente, cursoId: inexistente, disciplinaId: inexistente, professorId: inexistente,
+      turmaId: inexistente, diaSemana: 'QUARTA', horaInicio: '19:00', horaTermino: '20:00',
+    })
+    const [status, corpo] = await api.pedir('/api/horarios', json(horario))
+    assert.deepEqual([status, corpo], [404, { erro: 'Sala não encontrada.', codigo: 'NAO_ENCONTRADO' }])
+  })
+
+  it('filtros inválidos de aulas e ocupação respondem 400 no formato padrão', async () => {
+    for (const caminho of [
+      '/api/aulas?dia=SABADO',
+      '/api/aulas?periodo=MADRUGADA',
+      '/api/salas/ocupacao?dia=SEGUNDA&hora=25:99',
+      '/api/salas/ocupacao?dia=SABADO&hora=10:00',
+    ]) {
+      const [status, corpo] = await api.pedir(caminho)
+      assert.deepEqual([status, corpo.codigo], [400, 'PARAMETRO_INVALIDO'], caminho)
+    }
   })
 
   it('listas não vazam colunas internas', async () => {
@@ -65,6 +77,7 @@ describe('API', () => {
       assert.equal('criadoEm' in item, false)
       assert.equal('atualizadoEm' in item, false)
     }
-    for (const sala of salas) assert.deepEqual(Array.isArray(sala.fotos), true)
+    // A lista de salas não traz fotos (RNF04); elas só vêm no detalhe.
+    for (const sala of salas) assert.equal('fotos' in sala, false)
   })
 })
