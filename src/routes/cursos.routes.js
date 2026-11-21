@@ -5,11 +5,11 @@ import { ErroValidacao } from '../middlewares/erros.js'
 
 const router = Router()
 
-function validar({ codigo, nome }) {
-  if (!codigo?.trim() || !nome?.trim()) {
-    throw new ErroValidacao('Os campos "codigo" e "nome" são obrigatórios.')
+function validar({ sigla, nome }) {
+  if (!sigla?.trim() || !nome?.trim()) {
+    throw new ErroValidacao('Os campos "sigla" e "nome" são obrigatórios.')
   }
-  return { codigo: codigo.trim(), nome: nome.trim() }
+  return { sigla: sigla.trim(), nome: nome.trim() }
 }
 
 router.get('/', async (req, res) => {
@@ -20,7 +20,6 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   const curso = await prisma.curso.findUniqueOrThrow({
     where: { id: Number(req.params.id) },
-    include: { turmas: true },
   })
   res.json(curso)
 })
