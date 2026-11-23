@@ -1,0 +1,54 @@
+﻿Dia;Horário;Semestre;Sala;Disciplina;Professor;Compartilhada com
+Segunda;19:00;2º Semestre;L. Fís. Exp. / Lab. Elet. 1;Lab. Fís. Exp. I;Soraya;—
+Segunda;20:20;2º Semestre;L. Fís. Exp. / Lab. Elet. 1;Lab. Sist. Dig. I;Alexandre Munhoz;—
+Segunda;20:40;2º Semestre;Lab. Inf. 3;Exp. Gráfica;Augusto de Andrade;—
+Terça;19:00;2º Semestre;T3;Geometria Analítica;Flávia Ferreira;A confirmar
+Terça;20:40;2º Semestre;T3;Intr. A Física;João Otrent;A confirmar
+Quarta;19:00;2º Semestre;T3;Alg. e Prog. De Comp. I;Saulo Santos;—
+Quarta;20:40;2º Semestre;Lab. Inf. 1;Lab. Prog. De Comp. I;Saulo Santos;—
+Quinta;19:00;2º Semestre;T3;Fund. de Mat.;Carmen Lucia;A confirmar
+Quinta;20:40;2º Semestre;T3;Introdução a Química;D. Thomaz;A confirmar
+Sexta;19:00;2º Semestre;T3;Análise e Projetos de Sistemas I;Renata Mirella;—
+Sexta;20:40;2º Semestre;T3;Sistemas Digitais I;Munhoz;—
+Segunda;19:00;4º Semestre;Lab. Inf. 1;Fund. de Banco de Dados I;João G. H. Borges;—
+Segunda;20:40;4º Semestre;Lab. Inf. 1;Estrut. De Dados I;Eduardo Ribeiro;—
+Terça;19:00;4º Semestre;108 / Lab. Eletrônica;Circuitos Elétricos I;Augusto de Andrade;A confirmar
+Terça;20:40;4º Semestre;108 / L. Fís. Exp.;Introd. Lógica Mat. Comp.;Sabrina;—
+Terça;22:00;4º Semestre;108 / L. Fís. Exp.;Lab. Fís. Exp III;Soraya;—
+Quarta;19:00;4º Semestre;108;Física II;João Otrent;A confirmar
+Quarta;20:40;4º Semestre;108;Probabilidade e Estatística I;Sabrina;—
+Quinta;19:00;4º Semestre;108;Cálculo Dif. Int. II (S);Veridiana;A confirmar
+Quinta;20:40;4º Semestre;108;Cálculo Dif. Int. II (S);Veridiana;A confirmar
+Sexta;19:00;4º Semestre;108;Mecânica Geral I;João Otrent;A confirmar
+Sexta;20:40;4º Semestre;108;Cálculo Numérico I;Bete Malara;A confirmar
+Segunda;19:00;6º Semestre;212 / Lab. Eletrônica;Eletrônica I;Augusto de Andrade;—
+Segunda;20:40;6º Semestre;Lab. Inf. 5;Introd. A Prog. Orient a Obj. I;Felipe Diniz;—
+Terça;19:00;6º Semestre;212;Eletromag I;Daniel;—
+Terça;20:40;6º Semestre;212;Resistência dos Materiais II;Quaresma;—
+Quarta;19:00;6º Semestre;212;Análise e Projetos de Sistemas II;Renata Mirella;—
+Quarta;20:40;6º Semestre;Lab. Inf. 3;E. D. Avançadas I;Felipe Diniz;—
+Quinta;19:00;6º Semestre;212;Análise Sinais e Sistemas I;Eduardo Oliveira;—
+Quinta;20:40;6º Semestre;212;Arq. De Mic. E Org. Microproc. I;Eduardo Oliveira;—
+Sexta;19:00;6º Semestre;212 / Lab. Eletrônica;Eletrônica I;Augusto de Andrade;—
+Sexta;20:40;6º Semestre;212;Modelos Dinâmicos I;Augusto de Andrade;—
+Segunda;19:00;8º Semestre;219;Metodologia de Pesquisa;Fabiana Florian;—
+Segunda;20:40;8º Semestre;219;Teoria da Computação I;Saulo Santos;—
+Terça;19:00;8º Semestre;Lab. Inf. 5;Tec. e Com. de Dados;João H. G. Borges;—
+Terça;20:40;8º Semestre;219;Tec. e Com. de Dados;João H. G. Borges;—
+Quarta;19:00;8º Semestre;Lab. Inf. 2;Sist.Operacionais I;André Luis Silva;Eng. Comp. + Sist. Inf.
+Quarta;20:40;8º Semestre;219;Engenharia de Software I;Renata M. Farina;—
+Quinta;19:00;8º Semestre;219 / Lab. Inf. 4;Sist. Embarcados Microcont. I;Augusto de Andrade;—
+Quinta;20:40;8º Semestre;219;Sistemas de Controle I;Carmem Lúcia;—
+Sexta;19:00;8º Semestre;Lab. Inf. 2;Arq. De Mic. E Org. Microproc. 3;Eduardo Oliveira;—
+Sexta;20:40;8º Semestre;Lab. Inf. 3;Tópicos Avançados Em Informática I;Renata M. Farina;—
+Segunda;19:00;10º Semestre;Lab. Inf. 3;Proc. Gráfico e de Imagens;Saulo Santos;—
+Segunda;20:40;10º Semestre;Lab. 1 / 219;IHC II;João H. G. Borges;Eng. Comp. + Sist. Inf.
+Segunda;22:00;10º Semestre;Lab. 1 / 219;TCC II;Fabina Florian;Eng. Comp. + Sist. Inf.
+Terça;19:00;10º Semestre;Lab. Inf. 7 / 211;Engenharia de Software II;Renata M. Farina;Eng. Comp. + Sist. Inf.
+Terça;20:40;10º Semestre;Lab. Inf. 5;Projeto e Análise de Algoritmos II;Eduardo Ribeiro;—
+Quarta;19:00;10º Semestre;Lab. Inf. 4;Robótica e Autom. Industrial II;Augusto de Andrade;—
+Quarta;20:40;10º Semestre;Lab. Inf. 2 / 217;Sist. Dist. e Prog. Conc.;João G. H. Borges;Eng. Comp. + Sist. Inf.
+Quinta;19:00;10º Semestre;Lab. Inf. 7;Inteligência Artificial II;André Luis;Eng. Comp. + Sist. Inf.
+Quinta;20:40;10º Semestre;Lab. Inf. 5 / 217;Periféricos e Interfaces;Augusto de Andrade;A confirmar
+Sexta;19:00;10º Semestre;Lab. Inf. 2 / 217;Sist. Dist. e Prog. Conc.;João G. H. Borges;Eng. Comp. + Sist. Inf.
+Sexta;20:40;10º Semestre;Lab. Inf. 1 / 217;Redes de Computadores II;João G. H. Borges;—
