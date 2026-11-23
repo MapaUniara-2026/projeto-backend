@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import cors from 'cors'
 import express from 'express'
-import { tratarErros } from './middlewares/erros.js'
+import { rotaNaoEncontrada, tratarErros } from './middlewares/erros.js'
 import rotas from './routes/index.js'
 
 const app = express()
@@ -14,12 +14,12 @@ const origens = (process.env.CORS_ORIGIN ?? 'http://localhost:5173')
   .filter(Boolean)
   .map((o) => new RegExp(`^${o.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '[a-z0-9-]+')}$`))
 app.use(cors({ origin: origens }))
-app.use(express.json())
+// Sem express.json(): a API é só de consulta (RNF08) e nenhuma rota lê corpo de requisição.
 
 app.get('/', (req, res) => res.json({ mensagem: 'API do Projeto da Faculdade' }))
 app.use('/api', rotas) // todas as rotas da API: src/routes/index.js
 
-app.use((req, res) => res.status(404).json({ erro: 'Rota não encontrada' }))
+app.use(rotaNaoEncontrada)
 app.use(tratarErros)
 
 // A Vercel usa este export default (cada requisição vira uma função serverless).

@@ -1,18 +1,21 @@
-// GET /api/cursos — opções do filtro de curso no front-end (contrato, seção 2.3).
-// Documentação: docs/API.md#get-apicursos
+// Rotas de cursos (opções do filtro de curso). Só leitura (RNF08): os dados entram pelo seed.
 import { Router } from 'express'
 import { prisma } from '../lib/prisma.js'
+import { cursoResposta, selectCurso } from '../lib/respostas.js'
+import { id } from '../lib/validacao.js'
+import { ErroNaoEncontrado } from '../middlewares/erros.js'
 
 const router = Router()
 
 router.get('/', async (req, res) => {
-  const cursos = await prisma.curso.findMany({
-    select: { codigo: true, nome: true }, // só o que o filtro usa; sem id e datas internas
-    orderBy: { nome: 'asc' },
-  })
-  // A lista muda raramente: o navegador pode reaproveitar a resposta por 5 minutos.
-  res.set('Cache-Control', 'public, max-age=300')
-  res.json(cursos)
+  const cursos = await prisma.curso.findMany({ select: selectCurso, orderBy: { nome: 'asc' } })
+  res.json(cursos.map(cursoResposta))
+})
+
+router.get('/:id', async (req, res) => {
+  const curso = await prisma.curso.findUnique({ where: { id: id(req.params.id) }, select: selectCurso })
+  if (!curso) throw new ErroNaoEncontrado('Curso não encontrado.')
+  res.json(cursoResposta(curso))
 })
 
 export default router

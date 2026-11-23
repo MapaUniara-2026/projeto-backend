@@ -18,16 +18,19 @@ No front-end, a URL base vem da variável de ambiente e todas as chamadas passam
 
 ## Sumário
 
-| Rota | Retorno | Status |
-|---|---|---|
-| [`GET /api/health`](#get-apihealth) | Saúde da API e do banco | ✅ |
-| [`GET /api/cursos`](#get-apicursos) | Opções do filtro de curso | ✅ |
-| [`GET /api/salas`](#get-apisalas) | Lista de salas para o mapa e a busca, sem fotografias | ⏳ |
-| [`GET /api/salas/ocupacao`](#get-apisalasocupacao) | Ocupação e disponibilidade das salas | ⏳ |
-| [`GET /api/salas/:codigo`](#get-apisalascodigo) | Detalhe da sala, com fotografias | ⏳ |
-| [`GET /api/aulas`](#get-apiaulas) | Aulas com filtros combinados | ⏳ |
+| Rota | Retorno |
+|---|---|
+| [`GET /api/health`](#get-apihealth) | Saúde da API e do banco |
+| [`GET /api/cursos`](#get-apicursos) | Opções do filtro de curso |
+| [`GET /api/cursos/:id`](#get-apicursosid) | Um curso |
+| [`GET /api/salas`](#get-apisalas) | Lista de salas para o mapa e a busca, sem fotografias |
+| [`GET /api/salas/ocupacao`](#get-apisalasocupacao) | Ocupação e disponibilidade das salas |
+| [`GET /api/salas/:codigo`](#get-apisalascodigo) | Detalhe da sala, com fotografias |
+| [`GET /api/aulas`](#get-apiaulas) | Aulas com filtros combinados |
+| [`GET /api/aulas/:id`](#get-apiaulasid) | Uma aula |
+| [`GET /api/horarios`](#get-apihorarios) | Registros de horário com os ids das relações |
 
-✅ implementada na `dev` · ⏳ em desenvolvimento (atualizar esta tabela no PR que implementar)
+Ao criar uma rota, acrescente uma linha aqui e a seção dela em [Rotas](#rotas).
 
 O contrato com o front-end é **somente leitura** (RNF08): só rotas `GET`.
 
@@ -100,7 +103,7 @@ Saúde da API e conexão com o banco. Usado pelo front (indicador de status) e p
 
 ### `GET /api/cursos`
 
-Lista de cursos para popular o **filtro de curso**. O `codigo` retornado é o valor usado no parâmetro `curso` de [`GET /api/aulas`](#get-apiaulas).
+Lista de cursos para popular o **filtro de curso**. A `sigla` é o valor usado no parâmetro `curso` de [`GET /api/aulas`](#get-apiaulas).
 
 **Parâmetros:** nenhum.
 
@@ -108,22 +111,22 @@ Lista de cursos para popular o **filtro de curso**. O `codigo` retornado é o va
 
 ```json
 [
-  { "codigo": "ES", "nome": "Engenharia de Software" },
-  { "codigo": "SI", "nome": "Sistemas de Informação" }
+  { "id": 2, "sigla": "EC", "nome": "Engenharia de Computação" },
+  { "id": 1, "sigla": "SI", "nome": "Sistemas de Informação" }
 ]
 ```
 
-Sem cursos cadastrados → `[]`.
-
-**Cache:** `Cache-Control: public, max-age=300`. A lista muda raramente, então o navegador reaproveita a resposta por 5 minutos.
-
-**Erros:** `500`, `503`.
+Sem cursos cadastrados → `[]`. **Erros:** `500`, `503`.
 
 **Uso no front-end:**
 
 ```js
 const cursos = await api('/api/cursos')
 ```
+
+### `GET /api/cursos/:id`
+
+Mesmo formato de um item da lista. **Erros:** `400` (id não inteiro), `404`, `500`, `503`.
 
 ---
 
@@ -133,47 +136,74 @@ Lista de salas para desenhar o mapa e para a busca. **Não inclui fotografias** 
 
 | Parâmetro | Tipo | Exemplo | Descrição |
 |---|---|---|---|
-| `andar` | inteiro | `1` | Filtra pelo andar. |
+| `andar` | inteiro | `0` | Filtra pelo andar (0 = térreo). |
 | `tipo` | texto | `LABORATORIO` | Filtra pelo tipo de sala. |
-| `busca` | texto | `104` | Busca pelo código/nome da sala. |
+| `busca` | texto | `104` | Busca no código ou no nome, sem diferenciar maiúsculas. |
 
-Todos opcionais e combináveis. **Erros:** `400` (`andar` não inteiro), `500`, `503`.
+Todos opcionais e combináveis.
 
-> ⏳ Formato da resposta: documentar no PR que implementar a rota.
+**200** — ordenado por `codigo`
+
+```json
+[
+  {
+    "codigo": "BL4-104",
+    "nome": "Sala 104",
+    "bloco": "BL4",
+    "andar": 0,
+    "tipo": "SALA_DE_AULA",
+    "localizacaoMapa": "..."
+  }
+]
+```
+
+**Erros:** `400` (`andar` não inteiro), `500`, `503`.
 
 ---
 
 ### `GET /api/salas/ocupacao`
 
-Ocupação e disponibilidade das salas em um dia e horário.
+Ocupação das salas em um dia e horário. Sem parâmetros, usa o momento atual no fuso `America/Sao_Paulo`. Áreas sem aula (`CIRCULACAO`, `SERVICO`) ficam de fora.
 
 | Parâmetro | Tipo | Exemplo |
 |---|---|---|
 | `dia` | `SEGUNDA`…`SEXTA` | `QUARTA` |
 | `hora` | `HH:MM` | `19:30` |
 
-Horário no fuso `America/Sao_Paulo`. **Erros:** `400` (`dia` ou `hora` fora do padrão), `500`, `503`.
+`dia` e `hora` vão juntos ou nenhum dos dois.
+
+**200** — cada sala com `ocupada` e a `aula` em andamento (mesmo formato de [`GET /api/aulas`](#get-apiaulas)) ou `null`
+
+```json
+[
+  { "codigo": "BL4-101", "nome": "Sala 101", "bloco": "BL4", "andar": 0, "tipo": "SALA_DE_AULA", "localizacaoMapa": "...", "ocupada": false, "aula": null }
+]
+```
+
+**Erros:** `400` (`dia` ou `hora` fora do padrão, ou só um dos dois), `500`, `503`.
 
 > ⚠️ Esta rota precisa ser declarada **antes** de `/api/salas/:codigo`.
->
-> ⏳ Formato da resposta: documentar no PR que implementar a rota.
 
 ---
 
 ### `GET /api/salas/:codigo`
 
-Detalhe de uma sala, **com fotografias**.
+Detalhe de uma sala, **com fotografias**. O código não diferencia maiúsculas (`bl4-104` = `BL4-104`).
 
-| Parâmetro de rota | Exemplo |
-|---|---|
-| `codigo` | `BL4-104` |
-
-**Fotografias** (contrato, seção 2.4):
+**200** — os campos da lista, mais `fotos`
 
 ```json
-"fotos": [
-  { "url": "https://.../bl4-104-1.jpg", "descricao": "Vista da porta de entrada da sala BL4-104" }
-]
+{
+  "codigo": "BL4-104",
+  "nome": "Sala 104",
+  "bloco": "BL4",
+  "andar": 0,
+  "tipo": "SALA_DE_AULA",
+  "localizacaoMapa": "...",
+  "fotos": [
+    { "url": "https://.../bl4-104-1.jpg", "descricao": "Vista da porta de entrada da sala BL4-104" }
+  ]
+}
 ```
 
 - `fotos` é sempre uma **lista** (uma ou várias fotos por local).
@@ -182,26 +212,74 @@ Detalhe de uma sala, **com fotografias**.
 
 **Erros:** `404` (sala não existe), `500`, `503`.
 
-> ⏳ Demais campos da resposta: documentar no PR que implementar a rota.
-
 ---
 
 ### `GET /api/aulas`
 
-Aulas com filtros combinados. Cada aula traz **sala, disciplina, curso, professor e turma** (entidades do DER).
+Aulas com filtros combinados (E). Cada aula traz **sala, disciplina, curso, professor e turma** (entidades do DER).
 
 | Parâmetro | Tipo | Exemplo |
 |---|---|---|
-| `curso` | código do curso (de [`GET /api/cursos`](#get-apicursos)) | `SI` |
+| `curso` | sigla do curso (de [`GET /api/cursos`](#get-apicursos)) | `SI` |
 | `dia` | `SEGUNDA`…`SEXTA` | `SEGUNDA` |
 | `periodo` | `MATUTINO` \| `VESPERTINO` \| `NOTURNO` | `NOTURNO` |
 | `sala` | código da sala | `BL4-104` |
+| `bloco` | bloco da sala | `BL4` |
+| `turma` | nome da turma | `SI-6A` |
+| `professor` | parte do nome | `Almeida` |
+| `semestre` | inteiro de 1 a 20 | `6` |
+| `inicio` / `fim` | `HH:MM` | `19:00` / `22:40` |
 
 Exemplo: `GET /api/aulas?curso=SI&dia=SEGUNDA&periodo=NOTURNO`
 
-Nenhuma aula para o filtro → `[]`. **Erros:** `400`, `500`, `503`.
+Parâmetro desconhecido → `400`. Nenhuma aula para o filtro → `[]`.
 
-> ⏳ Formato da resposta: documentar no PR que implementar a rota.
+**200** — ordenado por dia, hora de início e sala
+
+```json
+[
+  {
+    "id": 12,
+    "diaSemana": "SEGUNDA",
+    "periodo": "NOTURNO",
+    "horaInicio": "19:00",
+    "horaTermino": "20:40",
+    "sala": { "codigo": "BL4-104", "nome": "Sala 104", "andar": 0 },
+    "curso": { "sigla": "SI", "nome": "Sistemas de Informação" },
+    "disciplina": { "nome": "Engenharia de Software II" },
+    "professor": { "nome": "Prof. Carlos Almeida" },
+    "turma": { "nome": "SI-6A", "semestre": 6 }
+  }
+]
+```
+
+**Erros:** `400`, `500`, `503`.
+
+### `GET /api/aulas/:id`
+
+Mesmo formato de um item da lista. **Erros:** `400` (id não inteiro), `404`, `500`, `503`.
+
+---
+
+### `GET /api/horarios`
+
+Registros de horário (linhas da tabela `aulas`) com os **ids** das relações. Para a tela, use [`GET /api/aulas`](#get-apiaulas).
+
+| Parâmetro | Tipo | Exemplo |
+|---|---|---|
+| `dia` | `SEGUNDA`…`SEXTA` | `TERCA` |
+| `salaId` | inteiro | `3` |
+| `turmaId` | inteiro | `7` |
+
+**200**
+
+```json
+[
+  { "id": 12, "salaId": 3, "cursoId": 1, "disciplinaId": 5, "professorId": 2, "turmaId": 7, "diaSemana": "SEGUNDA", "periodo": "NOTURNO", "horaInicio": "19:00", "horaTermino": "20:40" }
+]
+```
+
+`GET /api/horarios/:id` devolve um registro. **Erros:** `400`, `404`, `500`, `503`.
 
 ---
 
@@ -209,7 +287,7 @@ Nenhuma aula para o filtro → `[]`. **Erros:** `400`, `500`, `503`.
 
 ```
 src/app.js              → app.use('/api', rotas)
-src/routes/index.js     → monta cada entidade: /health, /cursos, /salas ...
+src/routes/index.js     → monta cada entidade: /health, /cursos, /salas, /aulas, /horarios
 src/routes/<entidade>.routes.js
 ```
 
@@ -218,7 +296,7 @@ src/routes/<entidade>.routes.js
 1. Crie ou edite `src/routes/<entidade>.routes.js` (somente `GET`).
 2. Monte a entidade em `src/routes/index.js` — **não** em `app.js`.
 3. Dentro do router, declare rotas fixas antes das com parâmetro (`/ocupacao` antes de `/:codigo`).
-4. Documente a rota aqui, no mesmo PR, e atualize o status no [Sumário](#sumário).
+4. Documente a rota aqui, no mesmo PR, e acrescente a linha dela no [Sumário](#sumário).
 
 ## Compatibilidade entre front e back
 

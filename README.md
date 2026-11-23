@@ -75,26 +75,57 @@ O CI aplica todas as migrações num banco limpo e falha se o `schema.prisma` ti
 
 Úteis: `npm run db:studio` (interface para ver os dados), `npm run db:reset` (zera o banco local).
 
+### Horários das aulas (dados reais)
+
+Os horários de SI, EC e IA ficam em `prisma/dados/horarios/` (um CSV por curso) e são gravados por `prisma/importar-horarios.js`:
+
+```bash
+npm run db:importar-horarios -- --simular   # mostra o que entra e o que fica de fora, sem gravar
+npm run db:importar-horarios                # grava (apaga e recria as aulas desses cursos)
+```
+
+- Local/DEV: o `npm run db:seed` já faz a importação.
+- QA/PRD: rode só a importação, com o `.env` apontando para o banco do ambiente. As salas do mapa precisam estar cadastradas antes.
+- Novo semestre: troque os CSVs, rode com `--simular`, confira o relatório e rode sem `--simular`.
+- As regras de conversão (sala do horário → sala do mapa, horário de término, grafias de professores) ficam no topo do script.
+
 ### Estrutura
 
 ```
 prisma/
 ├── schema.prisma        # modelo do banco (alinhar com o DER)
 ├── migrations/          # histórico de mudanças do banco
-└── seed.js              # dados de exemplo
+├── dados/horarios/      # horários reais (um CSV por curso)
+├── importar-horarios.js # grava os horários dos CSVs no banco
+└── seed.js              # dados para desenvolvimento local (chama a importação)
 src/
 ├── app.js               # configura o Express (usado pela Vercel)
 ├── local.js             # sobe o servidor localmente
-├── lib/prisma.js        # conexão com o banco
-├── middlewares/erros.js # converte erros do banco em respostas HTTP
+├── lib/
+│   ├── prisma.js        # conexão com o banco
+│   ├── validacao.js     # valida e normaliza params, query e body
+│   ├── respostas.js     # formato de cada resposta (select + mapper)
+│   └── horarios.js      # dias, períodos, horas HH:MM <-> TIME e o "agora" em São Paulo
+├── middlewares/erros.js # padrão de erros da API (ver seção 7)
+├── services/            # consulta de aulas com filtros (usada por /api/aulas)
+├── validators/          # regras de horários: intervalo válido e conflitos (ver seção 7.4)
 └── routes/
     ├── index.js         # monta todas as rotas sob /api (adicione novas entidades aqui)
     └── *.routes.js      # uma rota por entidade
+tests/                   # testes (node:test) — npm test
 docs/API.md              # documentação dos endpoints (atualizar no mesmo PR que alterar uma rota)
 scripts/vercel-build.js  # build na Vercel (gera o client + migra nas branches de ambiente)
 ```
 
 As regras de integridade (RNF11) ficam no banco: chaves estrangeiras, `onDelete: Restrict` e `@@unique`. A API transforma violações em respostas claras: **409** para duplicidade ou registro em uso, **404** para não encontrado.
+
+### Testes
+
+```bash
+npm test     # precisa do banco local com as migrações (npm run db:up && npm run db:deploy)
+```
+
+Os testes usam o `node:test` (nativo do Node, sem dependência extra) e rodam no CI em todo PR. Os de ponta a ponta (`tests/api.test.js`) só fazem leituras no banco.
 
 ---
 
@@ -173,3 +204,78 @@ Projetos gratuitos pausam após 1 semana sem uso. O workflow `manter-supabase-at
 ## 6. Ordem de deploy com o front-end
 
 Como são repositórios separados, uma mudança que mexe nos dois sobe em dois PRs. Suba **primeiro o back-end** e mantenha a API compatível com a versão anterior do front (adicione campos e rotas novas em vez de renomear ou remover de uma vez).
+
+---
+
+## 7. Padrão da API: erros, validações e respostas
+
+### 7.1 Erros
+
+Todo erro responde com o mesmo formato:
+
+```json
+{ "erro": "O campo \"nome\" é obrigatório.", "codigo": "PARAMETRO_INVALIDO" }
+```
+
+- `erro`: mensagem em português, pode ser mostrada direto ao usuário.
+- `codigo`: sempre um destes. **O front decide o que fazer pelo `codigo`, nunca pela mensagem.**
+
+| `codigo` | HTTP | Quando |
+|---|---|---|
+| `PARAMETRO_INVALIDO` | 400 | Parâmetro ou query inválido |
+| `NAO_ENCONTRADO` | 404 | O registro pedido não existe |
+| `ROTA_NAO_ENCONTRADA` | 404 | A URL/método não existe na API (inclui qualquer `POST`, `PUT`, `PATCH` ou `DELETE`, ver 7.5) |
+| `CONFLITO` | 409 | Valor duplicado ou registro ainda em uso (regras do banco, RNF11) |
+| `ERRO_INTERNO` | 500 | Erro inesperado (detalhes só no log do servidor) |
+| `BANCO_INDISPONIVEL` | 503 | Não foi possível falar com o banco (fora do ar, Supabase pausado) — vale tentar de novo |
+
+Códigos internos do Prisma (`P2002`, `P2025`...) e nomes de colunas nunca aparecem na resposta. Para lançar um erro numa rota, use `throw new ErroValidacao('...')` ou `throw new ErroNaoEncontrado('...')` (de `src/middlewares/erros.js`); o Express 5 repassa erros de rotas `async` para o middleware sozinho.
+
+A exceção é o `GET /api/health`, que mantém o formato próprio (`{ status, ambiente, banco }`, 503 quando o banco cai) porque é lido pelo workflow que mantém o Supabase ativo.
+
+### 7.2 Validações (`src/lib/validacao.js`)
+
+Valide **tudo** que vem de `req.params`, `req.query` e `req.body` antes de ir ao banco. Cada função normaliza (tira espaços, coloca em maiúsculas) e devolve o valor pronto ou lança `PARAMETRO_INVALIDO`. Para parâmetros não obrigatórios, use `opcional(funcao)` (devolve `null` se não veio).
+
+| Função | Aceita | Devolve |
+|---|---|---|
+| `diaSemana` | `SEGUNDA` a `SEXTA` (RN04; aceita minúsculas e acento: `terça`) | `'TERCA'` |
+| `periodo` | `MATUTINO` (até 11:59), `VESPERTINO` (12:00–17:59), `NOTURNO` (a partir de 18:00) | `'NOTURNO'` |
+| `hora` | `HH:MM`, de `00:00` a `23:59` | `'19:00'` |
+| `codigoSala` | formato do mapa, ex.: `BL4-104` | `'BL4-104'` |
+| `andar` | inteiro de 0 a 99 (0 = térreo) | `0` |
+| `siglaCurso` | 2 a 20 letras/números, ex.: `SI` | `'SI'` |
+| `busca` | texto de até 100 caracteres | texto sem espaços nas pontas |
+| `id`, `inteiro`, `texto`, `corpo` | genéricos (id positivo, inteiro com faixa, texto com tamanho máximo, corpo JSON obrigatório) | |
+
+O "agora" da ocupação das salas vem de `agoraEmSaoPaulo()` (`src/lib/horarios.js`), que usa o fuso `America/Sao_Paulo` via `Intl` — a Vercel roda em UTC e não permite definir `TZ`. Sábado e domingo voltam como dia `null` (sem aulas).
+
+### 7.3 Respostas (`src/lib/respostas.js`)
+
+- Toda rota busca com `select` e monta a resposta com o mapper da entidade: nada de devolver o objeto do Prisma direto (assim `criadoEm`/`atualizadoEm` não vazam).
+- Campo sem valor sai como `null`, **nunca omitido** (use `?? null`).
+- Listas sem itens saem como `[]` (ex.: `fotos: []`); fotos no formato `[{ "url": "...", "descricao": "..." }]`, só no detalhe da sala (a lista não traz fotos, RNF04).
+- Sala sem fotos sai com `fotos: []` — o front mostra "Foto indisponível" (RF17).
+- Horas sempre como `"HH:MM"` (use `formatarHora`).
+
+### 7.4 Horários (`/api/horarios`)
+
+Cada horário é uma linha da tabela `aulas`, com os ids das relações. Para a tela, use `/api/aulas`.
+
+| Rota | O que faz |
+|---|---|
+| `GET /api/horarios` | Lista os horários. Filtros opcionais: `?dia=SEGUNDA`, `?salaId=1`, `?turmaId=1` |
+| `GET /api/horarios/:id` | Detalha um horário (404 se não existir) |
+
+A API não cadastra horários (ver 7.5). As regras de intervalo e de sobreposição ficam em `src/validators/horarios.js` e `src/validators/conflitos-horarios.js`, prontas para quem voltar a gravar dados:
+
+- `diaSemana` de segunda a sexta e horas em `HH:MM`, com `horaInicio` antes de `horaTermino`.
+- Sala ou turma com aula sobreposta no mesmo dia é conflito. Dois horários se sobrepõem quando `inicioA < fimB` e `inicioB < fimA`; aulas consecutivas (uma termina 20:40, a outra começa 20:40) não conflitam.
+
+O banco só impede duas aulas com a **mesma hora de início** (`@@unique`); a sobreposição parcial depende dessas regras.
+
+### 7.5 API só de consulta (RNF08)
+
+O sistema é de consulta: **não existe nenhuma rota de escrita** (`POST`, `PUT`, `PATCH`, `DELETE`). Qualquer tentativa responde **404 `ROTA_NAO_ENCONTRADA`** e nada é alterado. Os dados entram pelo seed (`npm run db:seed`), revisado no Git como qualquer código. Por isso a API também não lê corpo de requisição (sem `express.json()`).
+
+Se um dia o time precisar de escrita pela API, a alternativa prevista no plano é exigir um cabeçalho com uma chave secreta guardada só na Vercel.

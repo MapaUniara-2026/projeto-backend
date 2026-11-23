@@ -1,0 +1,45 @@
+﻿Dia;Horário;Semestre;Sala;Disciplina;Professor;Compartilhada com
+Segunda;19:00;2º Semestre;109;Alg. De Prog. I;Felipe Diniz;Eng. Comp. + Sist. Inf.
+Segunda;20:40;2º Semestre;109;Fund. de Mat.;Carmem Lúcia;—
+Terça;19:00;2º Semestre;109;Análise e Projeto Estruturado I;Lucas Diniz;—
+Terça;20:40;2º Semestre;109;Alg. Prog. De Comp. I;Felipe Diniz;Eng. Comp. + Sist. Inf.
+Quarta;19:00;2º Semestre;Lab. 1 / Lab. 3;Lab. Prog. I;Marcelo Torres;Eng. Comp. + Sist. Inf.
+Quarta;20:20;2º Semestre;Lab. 1 / Lab. 3;Lab. Prog. I;Felipe Diniz;Eng. Comp. + Sist. Inf.
+Quarta;20:40;2º Semestre;109;Geometria Analítica;Flávia Ferreira;Eng. Comp. + Sist. Inf.
+Quinta;19:00;2º Semestre;Lab. 2 / 109;Lab. Prog. Web;Lucas Diniz;—
+Quinta;20:20;2º Semestre;Lab. 2 / 109;Prog. Web;João. G. Borges;—
+Quinta;20:40;2º Semestre;109 / Lab. Inf. 2;Prog. Web;Lucas Diniz;—
+Quinta;22:00;2º Semestre;109 / Lab. Inf. 2;Lab. Prog. Web;João. G. Borges;—
+Sexta;19:00;2º Semestre;Lab. Inf. 7;Proj. Integrado II;Celso;—
+Sexta;20:40;2º Semestre;109;Aqu. Org. Comp 1;Eduardo Oliveira;—
+Segunda;19:00;4º Semestre;112;Cáclulo Diferencial e Integral II;Flávia Ferreira;—
+Segunda;20:40;4º Semestre;112 / Lab. Inf. 2;Fund. BD I;André Luis Silva;Eng. Comp. + Sist. Inf.
+Terça;19:00;4º Semestre;Lab. Inf. 1;Estruturas de Dados I;Eduardo Ribeiro;—
+Terça;20:40;4º Semestre;112 / Lab. Inf. 1;Mod. De Proc. De Neg. II;Renata Farina;—
+Terça;22:00;4º Semestre;112 / Lab. Inf. 1;Log. Mat. E Comp.;Flavia Ferreira;—
+Quarta;19:00;4º Semestre;112;Probabilidade e Estatística I;Sabrina;—
+Quarta;20:40;4º Semestre;Lab. Inf. 5;Des. Desktop I;Marcelo Torres;—
+Quinta;19:00;4º Semestre;Lab. Inf. 5;Qualidade de Software;Renata Farina;—
+Quinta;20:40;4º Semestre;112;Fund. de Anal. de Prog. Orient. Obj.;Renata Farina;—
+Sexta;19:00;4º Semestre;Lab. Inf. 1;Int. a Prog. Orient. a Objetos I;Felipe Diniz;—
+Sexta;20:40;4º Semestre;Lab. Inf. 2;Fundamentos IA;André Luis Silva;—
+Segunda;19:00;6º Semestre;Lab. Inf. 7;Teste de Software;André Luis Silva;—
+Segunda;20:40;6º Semestre;217;Eng.de Software I;Renata Farina;—
+Terça;19:00;6º Semestre;Lab. Inf. 2;Proj. de Banco de Dados;André Luis Silva;—
+Terça;20:40;6º Semestre;Lab. Inf. 4;IA Av. I;André Luis Silva;—
+Quarta;19:00;6º Semestre;Lab. Inf. 2;Sist. Oper. I;André Luis Silva;Sist. Inf. + IA
+Quarta;20:40;6º Semestre;Lab. Inf. 4;Des. p/ Internet I;André Luis Silva;—
+Quinta;19:00;6º Semestre;217;Metodologia Científica;Fabiana Florian;—
+Quinta;20:40;6º Semestre;Lab. Inf. 3;Est. de Dados Av. I;Felipe Dalillo;—
+Sexta;19:00;6º Semestre;Lab. Inf. 5;Arq. Software I;André Luis Silva;—
+Sexta;20:40;6º Semestre;Lab. Inf. 5;Proj. Int. III;Felipe Dallilo;—
+Segunda;19:00;8º Semestre;Lab. Inf. 2;Projeto e Análise de Algoritmos II;Eduardo Ribeiro;—
+Segunda;20:40;8º Semestre;Lab. 1 / 219;IHC II;João H. G. Borges;Sist. Inf. + IA
+Segunda;22:00;8º Semestre;Lab. 1 / 219;TCC II;Fabina Florian;—
+Terça;19:00;8º Semestre;Lab. Inf. 7 / 219;Engenharia de Software II;Renata M. Farina;Sist. Inf. + IA
+Terça;20:40;8º Semestre;Lab. Inf. 3;Tópicos Avançados Em Informática II;Lucas Diniz;—
+Quarta;19:00;8º Semestre;Lab. 5 / 219;Adm. Ger. Redes;João G. H. Borges;—
+Quarta;20:40;8º Semestre;Lab. Inf. 2 / 217;Sist. Dist. e Prog. Conc.;João G. H. Borges;Sist. Inf. + IA
+Quinta;19:00;8º Semestre;Lab. Inf. 7;Inteligência Artificial II;André Luis Silva;Sist. Inf. + IA
+Quinta;20:40;8º Semestre;Lab. Inf. 7;Des. Disp. Móveis II;André Luis Silva;—
+Sexta;19:00;8º Semestre;Lab. 2 / 217;Sist. Dist. e Prog. Conc.;João G. H. Borges;Sist. Inf. + IA
