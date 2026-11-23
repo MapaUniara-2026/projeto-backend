@@ -480,10 +480,10 @@
       "_id": "req_0031",
       "_type": "request",
       "parentId": "fld_0029",
-      "name": "JSON malformado",
+      "name": "Escrita bloqueada (RNF08)",
       "method": "POST",
       "url": "{{ _.base }}/cursos",
-      "description": "**2.6** Corpo inválido → 400 no formato padrão.\n\n⚠ Só faz sentido enquanto as rotas de escrita existirem (ver decisão sobre RNF08).",
+      "description": "**RNF08** A API é só de consulta: os dados entram pelo seed. Nenhuma requisição consegue criar, alterar ou apagar dados.\n\n**2.6** Rota de escrita inexistente → 404 no formato padrão.",
       "headers": [
         {
           "name": "Content-Type",
@@ -493,12 +493,12 @@
       "parameters": [],
       "body": {
         "mimeType": "application/json",
-        "text": "{ \"codigo\": \"ES\", "
+        "text": "{ \"sigla\": \"ES\", \"nome\": \"Engenharia de Software\" }"
       },
       "authentication": {},
       "metaSortKey": 1,
       "preRequestScript": "",
-      "afterResponseScript": "// ---- helpers do contrato ----\nconst DIAS = ['SEGUNDA', 'TERCA', 'QUARTA', 'QUINTA', 'SEXTA'];            // RN04\nconst PERIODOS = ['MATUTINO', 'VESPERTINO', 'NOTURNO'];                   // RN03\nconst HHMM = /^([01]\\d|2[0-3]):[0-5]\\d$/;                                 // \"HH:MM\"\nconst body = () => insomnia.response.json();\nfunction camelCase(obj, caminho = '') {                                   // 2.5: camelCase, sem snake_case\n  if (Array.isArray(obj)) return obj.forEach((x, i) => camelCase(x, `${caminho}[${i}]`));\n  if (obj && typeof obj === 'object') for (const k of Object.keys(obj)) {\n    insomnia.expect(k, `campo ${caminho}.${k}`).to.not.include('_');\n    camelCase(obj[k], `${caminho}.${k}`);\n  }\n}\nfunction erroPadrao(status) {                                              // 2.6: { erro, codigo }\n  insomnia.test(`status ${status}`, () => insomnia.expect(insomnia.response.code).to.eql(status));\n  insomnia.test('erro no formato { erro, codigo }', () => {\n    const b = body();\n    insomnia.expect(b.erro, 'erro').to.be.a('string').and.not.empty;\n    insomnia.expect(b.codigo, 'codigo').to.be.a('string').and.not.empty;\n  });\n}\nfunction ok200() {\n  insomnia.test('status 200', () => insomnia.expect(insomnia.response.code).to.eql(200));\n  insomnia.test('resposta em JSON', () =>\n    insomnia.expect(insomnia.response.headers.get('content-type')).to.include('application/json'));\n}\n// ------------------------------\nerroPadrao(400);\n",
+      "afterResponseScript": "// ---- helpers do contrato ----\nconst DIAS = ['SEGUNDA', 'TERCA', 'QUARTA', 'QUINTA', 'SEXTA'];            // RN04\nconst PERIODOS = ['MATUTINO', 'VESPERTINO', 'NOTURNO'];                   // RN03\nconst HHMM = /^([01]\\d|2[0-3]):[0-5]\\d$/;                                 // \"HH:MM\"\nconst body = () => insomnia.response.json();\nfunction camelCase(obj, caminho = '') {                                   // 2.5: camelCase, sem snake_case\n  if (Array.isArray(obj)) return obj.forEach((x, i) => camelCase(x, `${caminho}[${i}]`));\n  if (obj && typeof obj === 'object') for (const k of Object.keys(obj)) {\n    insomnia.expect(k, `campo ${caminho}.${k}`).to.not.include('_');\n    camelCase(obj[k], `${caminho}.${k}`);\n  }\n}\nfunction erroPadrao(status) {                                              // 2.6: { erro, codigo }\n  insomnia.test(`status ${status}`, () => insomnia.expect(insomnia.response.code).to.eql(status));\n  insomnia.test('erro no formato { erro, codigo }', () => {\n    const b = body();\n    insomnia.expect(b.erro, 'erro').to.be.a('string').and.not.empty;\n    insomnia.expect(b.codigo, 'codigo').to.be.a('string').and.not.empty;\n  });\n}\nfunction ok200() {\n  insomnia.test('status 200', () => insomnia.expect(insomnia.response.code).to.eql(200));\n  insomnia.test('resposta em JSON', () =>\n    insomnia.expect(insomnia.response.headers.get('content-type')).to.include('application/json'));\n}\n// ------------------------------\nerroPadrao(404);\n",
       "settingEncodeUrl": true,
       "settingFollowRedirects": "global"
     }

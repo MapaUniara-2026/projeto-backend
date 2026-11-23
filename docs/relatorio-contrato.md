@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Data | 18/11/2026, 16:07:16 |
+| Data | 18/11/2026, 16:19:10 |
 | Ambiente | Local (`http://localhost:3000/api`) |
 | Requests | 22 de 22 sem divergências |
 | Verificações | 69 de 69 aprovadas |
@@ -32,13 +32,13 @@
 | ✅ | 4. Cursos | Curso com ID inválido | 400 | 2/2 |
 | ✅ | 4. Cursos | Curso inexistente | 404 | 2/2 |
 | ✅ | 5. Erros gerais | Rota inexistente | 404 | 2/2 |
-| ✅ | 5. Erros gerais | JSON malformado | 400 | 2/2 |
+| ✅ | 5. Erros gerais | Escrita bloqueada (RNF08) | 404 | 2/2 |
 
 ## 0. Health
 
 ### ✅ Health
 
-`GET http://localhost:3000/api/health` → **200** em 49 ms
+`GET http://localhost:3000/api/health` → **200** em 47 ms
 
 **O que o contrato espera:** Esperado: 200 com `status: ok` e `banco: ok`. Se der 503, o banco está fora e os outros testes vão falhar.
 
@@ -304,7 +304,7 @@
 
 ### ✅ Sala inexistente
 
-`GET http://localhost:3000/api/salas/XX-999` → **404** em 4 ms
+`GET http://localhost:3000/api/salas/XX-999` → **404** em 3 ms
 
 **O que o contrato espera:** **2.6** Registro não encontrado → 404 no formato padrão.
 
@@ -326,7 +326,7 @@
 
 ### ✅ Listar aulas
 
-`GET http://localhost:3000/api/aulas` → **200** em 73 ms
+`GET http://localhost:3000/api/aulas` → **200** em 70 ms
 
 **O que o contrato espera:** **2.1** Cada aula traz `sala`, `disciplina`, `curso`, `professor`, `turma` (alinhado ao DER). **2.5** Dia SEGUNDA–SEXTA, período MATUTINO/VESPERTINO/NOTURNO, horário "HH:MM".
 
@@ -428,7 +428,7 @@
 
 ### ✅ Aulas com filtros combinados
 
-`GET http://localhost:3000/api/aulas?curso=SI&dia=SEGUNDA&periodo=NOTURNO` → **200** em 14 ms
+`GET http://localhost:3000/api/aulas?curso=SI&dia=SEGUNDA&periodo=NOTURNO` → **200** em 13 ms
 
 **O que o contrato espera:** **2.3** Filtros combinados. Todos os resultados devem atender aos três filtros ao mesmo tempo.
 
@@ -612,7 +612,7 @@
 
 ### ✅ Ocupação em dia e hora
 
-`GET http://localhost:3000/api/salas/ocupacao?dia=SEGUNDA&hora=19:30` → **200** em 6 ms
+`GET http://localhost:3000/api/salas/ocupacao?dia=SEGUNDA&hora=19:30` → **200** em 7 ms
 
 **O que o contrato espera:** **2.3** Ocupação e disponibilidade das salas. Se voltar 404 "sala não encontrada", a rota `/ocupacao` está declarada **depois** de `/:codigo` no router.
 
@@ -702,7 +702,7 @@
 
 ### ✅ Ocupação agora (fuso)
 
-`GET http://localhost:3000/api/salas/ocupacao` → **200** em 3 ms
+`GET http://localhost:3000/api/salas/ocupacao` → **200** em 8 ms
 
 **O que o contrato espera:** **2.5** Sem `dia`/`hora`, a API usa o momento atual **em America/Sao_Paulo**. O servidor roda em UTC: compare manualmente com o relógio — se a ocupação estiver 3h adiantada, o fuso não foi tratado.
 
@@ -892,7 +892,7 @@
 
 ### ✅ Curso inexistente
 
-`GET http://localhost:3000/api/cursos/999999` → **404** em 1 ms
+`GET http://localhost:3000/api/cursos/999999` → **404** em 2 ms
 
 **O que o contrato espera:** **2.6** Registro não encontrado → 404.
 
@@ -914,7 +914,7 @@
 
 ### ✅ Rota inexistente
 
-`GET http://localhost:3000/api/rota-que-nao-existe` → **404** em 1 ms
+`GET http://localhost:3000/api/rota-que-nao-existe` → **404** em 0 ms
 
 **O que o contrato espera:** **2.6** 404 no formato padrão. Hoje vem só `{ erro }`, sem `codigo`.
 
@@ -932,21 +932,21 @@
 
 </details>
 
-### ✅ JSON malformado
+### ✅ Escrita bloqueada (RNF08)
 
-`POST http://localhost:3000/api/cursos` → **400** em 15 ms
+`POST http://localhost:3000/api/cursos` → **404** em 2 ms
 
-**O que o contrato espera:** **2.6** Corpo inválido → 400 no formato padrão. ⚠ Só faz sentido enquanto as rotas de escrita existirem (ver decisão sobre RNF08).
+**O que o contrato espera:** **RNF08** A API é só de consulta: os dados entram pelo seed. Nenhuma requisição consegue criar, alterar ou apagar dados. **2.6** Rota de escrita inexistente → 404 no formato padrão.
 
-- ✅ status 400
+- ✅ status 404
 - ✅ erro no formato { erro, codigo }
 
 <details><summary>Resposta recebida</summary>
 
 ```json
 {
-  "erro": "O corpo da requisição não é um JSON válido.",
-  "codigo": "PARAMETRO_INVALIDO"
+  "erro": "Rota não encontrada: POST /api/cursos",
+  "codigo": "ROTA_NAO_ENCONTRADA"
 }
 ```
 

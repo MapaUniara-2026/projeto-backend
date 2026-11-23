@@ -23,18 +23,30 @@ describe('API', () => {
     assert.equal(corpo.codigo, 'ROTA_NAO_ENCONTRADA')
   })
 
-  it('JSON malformado responde 400 PARAMETRO_INVALIDO', async () => {
-    const [status, corpo] = await api.pedir('/api/cursos', json('{"sigla": "SI",'))
-    assert.equal(status, 400)
-    assert.equal(corpo.codigo, 'PARAMETRO_INVALIDO')
+  it('rotas de escrita não existem: nenhuma requisição altera dados (RNF08)', async () => {
+    const [, antes] = await api.pedir('/api/cursos')
+    const corpo = json('{"sigla": "ES", "nome": "Engenharia de Software"}')
+    for (const [metodo, caminho] of [
+      ['POST', '/api/cursos'],
+      ['PUT', '/api/cursos/1'],
+      ['PATCH', '/api/cursos/1'],
+      ['DELETE', '/api/cursos/1'],
+      ['POST', '/api/salas'],
+      ['DELETE', '/api/salas/BL4-104'],
+      ['POST', '/api/aulas'],
+      ['POST', '/api/horarios'],
+      ['DELETE', '/api/horarios/1'],
+    ]) {
+      const [status, resposta] = await api.pedir(caminho, { ...corpo, method: metodo })
+      assert.deepEqual([status, resposta.codigo], [404, 'ROTA_NAO_ENCONTRADA'], `${metodo} ${caminho}`)
+    }
+    const [, depois] = await api.pedir('/api/cursos')
+    assert.deepEqual(depois, antes)
   })
 
-  it('corpo ausente ou campos inválidos respondem 400 antes de chegar no banco', async () => {
-    const [semCorpo] = await api.pedir('/api/cursos', { method: 'POST' })
-    assert.equal(semCorpo, 400)
-    const [status, corpo] = await api.pedir('/api/cursos', json('{"sigla": "Sistemas de Informação", "nome": "SI"}'))
-    assert.equal(status, 400)
-    assert.match(corpo.erro, /sigla/)
+  it('JSON malformado também não chega a lugar nenhum', async () => {
+    const [status, corpo] = await api.pedir('/api/cursos', json('{"sigla": "SI",'))
+    assert.deepEqual([status, corpo.codigo], [404, 'ROTA_NAO_ENCONTRADA'])
   })
 
   it('id inválido responde 400', async () => {
@@ -46,16 +58,6 @@ describe('API', () => {
   it('curso inexistente responde 404 NAO_ENCONTRADO', async () => {
     const [status, corpo] = await api.pedir('/api/cursos/2147483647')
     assert.deepEqual([status, corpo], [404, { erro: 'Curso não encontrado.', codigo: 'NAO_ENCONTRADO' }])
-  })
-
-  it('horário com relação inexistente responde 404 sem gravar nada', async () => {
-    const inexistente = 2147483647
-    const horario = JSON.stringify({
-      salaId: inexistente, cursoId: inexistente, disciplinaId: inexistente, professorId: inexistente,
-      turmaId: inexistente, diaSemana: 'QUARTA', horaInicio: '19:00', horaTermino: '20:00',
-    })
-    const [status, corpo] = await api.pedir('/api/horarios', json(horario))
-    assert.deepEqual([status, corpo], [404, { erro: 'Sala não encontrada.', codigo: 'NAO_ENCONTRADO' }])
   })
 
   it('filtros inválidos de aulas e ocupação respondem 400 no formato padrão', async () => {

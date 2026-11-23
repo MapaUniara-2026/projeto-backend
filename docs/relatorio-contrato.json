@@ -1,5 +1,5 @@
 {
-  "dataHora": "18/11/2026, 16:07:16",
+  "dataHora": "18/11/2026, 16:19:10",
   "ambiente": "Local",
   "resultados": [
     {
@@ -9,7 +9,7 @@
       "descricao": "Esperado: 200 com `status: ok` e `banco: ok`. Se der 503, o banco está fora e os outros testes vão falhar.",
       "url": "http://localhost:3000/api/health",
       "status": 200,
-      "ms": 49,
+      "ms": 47,
       "corpo": "{\"status\":\"ok\",\"ambiente\":\"LOCAL\",\"banco\":\"ok\"}",
       "testes": [
         {
@@ -205,7 +205,7 @@
       "descricao": "**2.6** Registro não encontrado → 404 no formato padrão.",
       "url": "http://localhost:3000/api/salas/XX-999",
       "status": 404,
-      "ms": 4,
+      "ms": 3,
       "corpo": "{\"erro\":\"Registro não encontrado.\",\"codigo\":\"NAO_ENCONTRADO\"}",
       "testes": [
         {
@@ -225,7 +225,7 @@
       "descricao": "**2.1** Cada aula traz `sala`, `disciplina`, `curso`, `professor`, `turma` (alinhado ao DER).\n\n**2.5** Dia SEGUNDA–SEXTA, período MATUTINO/VESPERTINO/NOTURNO, horário \"HH:MM\".",
       "url": "http://localhost:3000/api/aulas",
       "status": 200,
-      "ms": 73,
+      "ms": 70,
       "corpo": "[{\"id\":2,\"diaSemana\":\"SEGUNDA\",\"periodo\":\"MATUTINO\",\"horaInicio\":\"08:00\",\"horaTermino\":\"09:40\",\"sala\":{\"codigo\":\"BL4-101\",\"nome\":\"Sala 101\",\"andar\":0},\"curso\":{\"sigla\":\"SI\",\"nome\":\"Sistemas de Informação\"},\"disciplina\":{\"nome\":\"Banco de Dados\"},\"professor\":{\"nome\":\"Marina Duarte\"},\"turma\":{\"nome\":\"SI-4A\",\"semestre\":4}},{\"id\":14,\"diaSemana\":\"SEGUNDA\",\"periodo\":\"VESPERTINO\",\"horaInicio\":\"14:00\",\"horaTermino\":\"15:40\",\"sala\":{\"codigo\":\"BL4-114\",\"nome\":\"Sala 114\",\"andar\":0},\"curso\":{\"sigla\":\"EC\",\"nome\":\"Engenharia de Computação\"},\"disciplina\":{\"nome\":\"Algoritmos\"},\"professor\":{\"nome\":\"Paulo Mendes\"},\"turma\":{\"nome\":\"EC-1A\",\"semestre\":1}},{\"id\":3,\"diaSemana\":\"SEGUNDA\",\"periodo\":\"NOTURNO\",\"horaInicio\":\"19:00\",\"horaTermino\":\"20:40\",\"sala\":{\"codigo\":\"BL4-102\",\"nome\":\"Auditório\",\"andar\":0},\"curso\":{\"sigla\":\"SI\",\"nome\":\"Sistemas de Informação\"},\"disciplina\":{\"nome\":\"Palestra de Abertura\"},\"professor\":{\"nome\":\"Carlos Almeida\"},\"turma\":{\"nome\":\"SI-1A\",\"semestre\":1}},{\"id\":4,\"diaSemana\":\"SEGUNDA\",\"periodo\":\"NOTURNO\",\"horaInicio\":\"19:00\",\"horaTermino\":\"22:40\",\"sala\":{\"codigo\":\"BL4-103\",\"nome\":\"Laboratório de Informática 7\",\"andar\":0},\"curso\":{\"sigla\":\"SI\",\"nome\":\"Sistemas de Informação\"},\"disciplina\":{\"nome\":\"Programação Web\"},\"professor\":{\"nome\":\"Marina Duarte\"},\"turma\":{\"nome\":\"SI-4A\",\"semestre\":4}},{\"id\":1,\"diaSemana\":\"SEGUNDA\",\"periodo\":\"NOTURNO\",\"horaInicio\":\"19:00\",\"horaTermino\":\"20:40\",\"sala\":{\"codigo\":\"BL4-104\",\"nome\":\"Sala 104\",\"andar\":0},\"curso\":{\"sigla\":\"SI\",\"nome\":\"Sistemas de Informação\"},\"disciplina\":{\"nome\":\"Engenharia de Software II\"},\"professor\":{\"nome\":\"Carlos Almeida\"},\"turma\":{\"nome\":\"SI-6A\",\"semestre\":6}},{\"id\":5,\"diaSemana\":\"TERCA\",\"periodo\":\"VESPERTINO\",\"horaInicio\":\"14:00\",\"horaTermino\":\"17:40\",\"sala\":{\"codigo\":\"BL4-103\",\"nome\":\"Laboratório de Informática 7\",\"andar\":0},\"curso\":{\"sigla\":\"EC\",\"nome\":\"Engenharia de Computação\"},\"disciplina\":{\"nome\":\"Sistemas Operacionais\"},\"professor\":{\"nome\":\"André Souza\"},\"turma\":{\"nome\":\"EC-4A\",\"semestre\":4}},{\"id\":8,\"diaSemana\":\"TERCA\",\"periodo\":\"NOTURNO\",\"horaInicio\":\"19:00\",\"horaTermino\":\"20:40\",\"sala\":{\"codigo\":\"BL4-109\",\"nome\":\"Sala 109\",\"andar\":0},\"curso\":{\"sigla\":\"EC\",\"nome\":\"Engenharia de Computação\"},\"disciplina\":{\"nome\":\"Cálculo II\"},\"professor\":{\"nome\":\"Renato Lima\"},\"turma\":{\"nome\":\"EC-3A\",\"semestre\":3}},{\"id\":9,\"diaSemana\":\"TERCA\",\"periodo\":\"NOTURNO\",\"horaInicio\":\"21:00\",\"horaTermino\":\"22:40\",\"sala\":{\"codigo\":\"BL4-110\",\"nome\":\"Sala 110\",\"andar\":0},\"curso\":{\"sigla\":\"SI\",\"nome\":\"Sistemas de Informação\"},\"disciplina\":{\"nome\":\"Redes de Computadores\"},\"professor\":{\"nome\":\"André Souza\"},\"turma\":{\"nome\":\"SI-5A\",\"semestre\":5}},{\"id\":13,\"diaSemana\":\"QUARTA\",\"periodo\":\"MATUTINO\",\"horaInicio\":\"08:00\",\"horaTermino\":\"09:40\",\"sala\":{\"codigo\":\"BL4-114\",\"nome\":\"Sala 114\",\"andar\":0},\"curso\":{\"sigla\":\"EC\",\"nome\":\"Engenharia de Computação\"},\"disciplina\":{\"nome\":\"Desenho Técnico\"},\"professor\":{\"nome\":\"Tiago Ferraz\"},\"turma\":{\"nome\":\"EC-2A\",\"semestre\":2}},{\"id\":10,\"diaSemana\":\"QUARTA\",\"periodo\":\"NOTURNO\",\"horaInicio\":\"19:00\",\"horaTermino\":\"20:40\",\"sala\":{\"codigo\":\"BL4-111\",\"nome\":\"Sala 111\",\"andar\":0},\"curso\":{\"sigla\":\"IA\",\"nome\":\"Inteligência Artificial\"},\"disciplina\":{\"nome\":\"Aprendizado de Máquina\"},\"professor\":{\"nome\":\"Helena Rocha\"},\"turma\":{\"nome\":\"IA-5A\",\"semestre\":5}},{\"id\":6,\"diaSemana\":\"QUINTA\",\"periodo\":\"VESPERTINO\",\"horaInicio\":\"14:00\",\"horaTermino\":\"17:40\",\"sala\":{\"codigo\":\"BL4-105\",\"nome\":\"Laboratório de Informática 2\",\"andar\":0},\"curso\":{\"sigla\":\"IA\",\"nome\":\"Inteligência Artificial\"},\"disciplina\":{\"nome\":\"Visão Computacional\"},\"professor\":{\"nome\":\"Helena Rocha\"},\"turma\":{\"nome\":\"IA-6A\",\"semestre\":6}},{\"id\":11,\"diaSemana\":\"QUINTA\",\"periodo\":\"NOTURNO\",\"horaInicio\":\"19:00\",\"horaTermino\":\"20:40\",\"sala\":{\"codigo\":\"BL4-112\",\"nome\":\"Sala 112\",\"andar\":0},\"curso\":{\"sigla\":\"SI\",\"nome\":\"Sistemas de Informação\"},\"disciplina\":{\"nome\":\"Estruturas de Dados\"},\"professor\":{\"nome\":\"Paulo Mendes\"},\"turma\":{\"nome\":\"SI-3A\",\"semestre\":3}},{\"id\":7,\"diaSemana\":\"SEXTA\",\"periodo\":\"MATUTINO\",\"horaInicio\":\"08:00\",\"horaTermino\":\"11:40\",\"sala\":{\"codigo\":\"BL4-105\",\"nome\":\"Laboratório de Informática 2\",\"andar\":0},\"curso\":{\"sigla\":\"EC\",\"nome\":\"Engenharia de Computação\"},\"disciplina\":{\"nome\":\"Física Experimental\"},\"professor\":{\"nome\":\"Renato Lima\"},\"turma\":{\"nome\":\"EC-2A\",\"semestre\":2}},{\"id\":12,\"diaSemana\":\"SEXTA\",\"periodo\":\"NOTURNO\",\"horaInicio\":\"19:00\",\"horaTermino\":\"20:40\",\"sala\":{\"codigo\":\"BL4-113\",\"nome\":\"Sala 113\",\"andar\":0},\"curso\":{\"sigla\":\"IA\",\"nome\":\"Inteligência Artificial\"},\"disciplina\":{\"nome\":\"Ética e Cidadania\"},\"professor\":{\"nome\":\"Lúcia Prado\"},\"turma\":{\"nome\":\"IA-2A\",\"semestre\":2}}]",
       "testes": [
         {
@@ -257,7 +257,7 @@
       "descricao": "**2.3** Filtros combinados. Todos os resultados devem atender aos três filtros ao mesmo tempo.",
       "url": "http://localhost:3000/api/aulas?curso=SI&dia=SEGUNDA&periodo=NOTURNO",
       "status": 200,
-      "ms": 14,
+      "ms": 13,
       "corpo": "[{\"id\":3,\"diaSemana\":\"SEGUNDA\",\"periodo\":\"NOTURNO\",\"horaInicio\":\"19:00\",\"horaTermino\":\"20:40\",\"sala\":{\"codigo\":\"BL4-102\",\"nome\":\"Auditório\",\"andar\":0},\"curso\":{\"sigla\":\"SI\",\"nome\":\"Sistemas de Informação\"},\"disciplina\":{\"nome\":\"Palestra de Abertura\"},\"professor\":{\"nome\":\"Carlos Almeida\"},\"turma\":{\"nome\":\"SI-1A\",\"semestre\":1}},{\"id\":4,\"diaSemana\":\"SEGUNDA\",\"periodo\":\"NOTURNO\",\"horaInicio\":\"19:00\",\"horaTermino\":\"22:40\",\"sala\":{\"codigo\":\"BL4-103\",\"nome\":\"Laboratório de Informática 7\",\"andar\":0},\"curso\":{\"sigla\":\"SI\",\"nome\":\"Sistemas de Informação\"},\"disciplina\":{\"nome\":\"Programação Web\"},\"professor\":{\"nome\":\"Marina Duarte\"},\"turma\":{\"nome\":\"SI-4A\",\"semestre\":4}},{\"id\":1,\"diaSemana\":\"SEGUNDA\",\"periodo\":\"NOTURNO\",\"horaInicio\":\"19:00\",\"horaTermino\":\"20:40\",\"sala\":{\"codigo\":\"BL4-104\",\"nome\":\"Sala 104\",\"andar\":0},\"curso\":{\"sigla\":\"SI\",\"nome\":\"Sistemas de Informação\"},\"disciplina\":{\"nome\":\"Engenharia de Software II\"},\"professor\":{\"nome\":\"Carlos Almeida\"},\"turma\":{\"nome\":\"SI-6A\",\"semestre\":6}}]",
       "testes": [
         {
@@ -345,7 +345,7 @@
       "descricao": "**2.3** Ocupação e disponibilidade das salas.\n\nSe voltar 404 \"sala não encontrada\", a rota `/ocupacao` está declarada **depois** de `/:codigo` no router.",
       "url": "http://localhost:3000/api/salas/ocupacao?dia=SEGUNDA&hora=19:30",
       "status": 200,
-      "ms": 6,
+      "ms": 7,
       "corpo": "[{\"codigo\":\"BL4-101\",\"nome\":\"Sala 101\",\"bloco\":\"BL4\",\"andar\":0,\"tipo\":\"SALA_DE_AULA\",\"localizacaoMapa\":\"sala-bl4-101\",\"ocupada\":false,\"aula\":null},{\"codigo\":\"BL4-102\",\"nome\":\"Auditório\",\"bloco\":\"BL4\",\"andar\":0,\"tipo\":\"AUDITORIO\",\"localizacaoMapa\":\"sala-bl4-102\",\"ocupada\":true,\"aula\":{\"id\":3,\"diaSemana\":\"SEGUNDA\",\"periodo\":\"NOTURNO\",\"horaInicio\":\"19:00\",\"horaTermino\":\"20:40\",\"sala\":{\"codigo\":\"BL4-102\",\"nome\":\"Auditório\",\"andar\":0},\"curso\":{\"sigla\":\"SI\",\"nome\":\"Sistemas de Informação\"},\"disciplina\":{\"nome\":\"Palestra de Abertura\"},\"professor\":{\"nome\":\"Carlos Almeida\"},\"turma\":{\"nome\":\"SI-1A\",\"semestre\":1}}},{\"codigo\":\"BL4-103\",\"nome\":\"Laboratório de Informática 7\",\"bloco\":\"BL4\",\"andar\":0,\"tipo\":\"LABORATORIO\",\"localizacaoMapa\":\"sala-bl4-103\",\"ocupada\":true,\"aula\":{\"id\":4,\"diaSemana\":\"SEGUNDA\",\"periodo\":\"NOTURNO\",\"horaInicio\":\"19:00\",\"horaTermino\":\"22:40\",\"sala\":{\"codigo\":\"BL4-103\",\"nome\":\"Laboratório de Informática 7\",\"andar\":0},\"curso\":{\"sigla\":\"SI\",\"nome\":\"Sistemas de Informação\"},\"disciplina\":{\"nome\":\"Programação Web\"},\"professor\":{\"nome\":\"Marina Duarte\"},\"turma\":{\"nome\":\"SI-4A\",\"semestre\":4}}},{\"codigo\":\"BL4-104\",\"nome\":\"Sala 104\",\"bloco\":\"BL4\",\"andar\":0,\"tipo\":\"SALA_DE_AULA\",\"localizacaoMapa\":\"sala-bl4-104\",\"ocupada\":true,\"aula\":{\"id\":1,\"diaSemana\":\"SEGUNDA\",\"periodo\":\"NOTURNO\",\"horaInicio\":\"19:00\",\"horaTermino\":\"20:40\",\"sala\":{\"codigo\":\"BL4-104\",\"nome\":\"Sala 104\",\"andar\":0},\"curso\":{\"sigla\":\"SI\",\"nome\":\"Sistemas de Informação\"},\"disciplina\":{\"nome\":\"Engenharia de Software II\"},\"professor\":{\"nome\":\"Carlos Almeida\"},\"turma\":{\"nome\":\"SI-6A\",\"semestre\":6}}},{\"codigo\":\"BL4-105\",\"nome\":\"Laboratório de Informática 2\",\"bloco\":\"BL4\",\"andar\":0,\"tipo\":\"LABORATORIO\",\"localizacaoMapa\":\"sala-bl4-105\",\"ocupada\":false,\"aula\":null},{\"codigo\":\"BL4-109\",\"nome\":\"Sala 109\",\"bloco\":\"BL4\",\"andar\":0,\"tipo\":\"SALA_DE_AULA\",\"localizacaoMapa\":\"sala-bl4-109\",\"ocupada\":false,\"aula\":null},{\"codigo\":\"BL4-110\",\"nome\":\"Sala 110\",\"bloco\":\"BL4\",\"andar\":0,\"tipo\":\"SALA_DE_AULA\",\"localizacaoMapa\":\"sala-bl4-110\",\"ocupada\":false,\"aula\":null},{\"codigo\":\"BL4-111\",\"nome\":\"Sala 111\",\"bloco\":\"BL4\",\"andar\":0,\"tipo\":\"SALA_DE_AULA\",\"localizacaoMapa\":\"sala-bl4-111\",\"ocupada\":false,\"aula\":null},{\"codigo\":\"BL4-112\",\"nome\":\"Sala 112\",\"bloco\":\"BL4\",\"andar\":0,\"tipo\":\"SALA_DE_AULA\",\"localizacaoMapa\":\"sala-bl4-112\",\"ocupada\":false,\"aula\":null},{\"codigo\":\"BL4-113\",\"nome\":\"Sala 113\",\"bloco\":\"BL4\",\"andar\":0,\"tipo\":\"SALA_DE_AULA\",\"localizacaoMapa\":\"sala-bl4-113\",\"ocupada\":false,\"aula\":null},{\"codigo\":\"BL4-114\",\"nome\":\"Sala 114\",\"bloco\":\"BL4\",\"andar\":0,\"tipo\":\"SALA_DE_AULA\",\"localizacaoMapa\":\"sala-bl4-114\",\"ocupada\":false,\"aula\":null}]",
       "testes": [
         {
@@ -377,7 +377,7 @@
       "descricao": "**2.5** Sem `dia`/`hora`, a API usa o momento atual **em America/Sao_Paulo**. O servidor roda em UTC: compare manualmente com o relógio — se a ocupação estiver 3h adiantada, o fuso não foi tratado.",
       "url": "http://localhost:3000/api/salas/ocupacao",
       "status": 200,
-      "ms": 3,
+      "ms": 8,
       "corpo": "[{\"codigo\":\"BL4-101\",\"nome\":\"Sala 101\",\"bloco\":\"BL4\",\"andar\":0,\"tipo\":\"SALA_DE_AULA\",\"localizacaoMapa\":\"sala-bl4-101\",\"ocupada\":false,\"aula\":null},{\"codigo\":\"BL4-102\",\"nome\":\"Auditório\",\"bloco\":\"BL4\",\"andar\":0,\"tipo\":\"AUDITORIO\",\"localizacaoMapa\":\"sala-bl4-102\",\"ocupada\":false,\"aula\":null},{\"codigo\":\"BL4-103\",\"nome\":\"Laboratório de Informática 7\",\"bloco\":\"BL4\",\"andar\":0,\"tipo\":\"LABORATORIO\",\"localizacaoMapa\":\"sala-bl4-103\",\"ocupada\":false,\"aula\":null},{\"codigo\":\"BL4-104\",\"nome\":\"Sala 104\",\"bloco\":\"BL4\",\"andar\":0,\"tipo\":\"SALA_DE_AULA\",\"localizacaoMapa\":\"sala-bl4-104\",\"ocupada\":false,\"aula\":null},{\"codigo\":\"BL4-105\",\"nome\":\"Laboratório de Informática 2\",\"bloco\":\"BL4\",\"andar\":0,\"tipo\":\"LABORATORIO\",\"localizacaoMapa\":\"sala-bl4-105\",\"ocupada\":false,\"aula\":null},{\"codigo\":\"BL4-109\",\"nome\":\"Sala 109\",\"bloco\":\"BL4\",\"andar\":0,\"tipo\":\"SALA_DE_AULA\",\"localizacaoMapa\":\"sala-bl4-109\",\"ocupada\":false,\"aula\":null},{\"codigo\":\"BL4-110\",\"nome\":\"Sala 110\",\"bloco\":\"BL4\",\"andar\":0,\"tipo\":\"SALA_DE_AULA\",\"localizacaoMapa\":\"sala-bl4-110\",\"ocupada\":false,\"aula\":null},{\"codigo\":\"BL4-111\",\"nome\":\"Sala 111\",\"bloco\":\"BL4\",\"andar\":0,\"tipo\":\"SALA_DE_AULA\",\"localizacaoMapa\":\"sala-bl4-111\",\"ocupada\":false,\"aula\":null},{\"codigo\":\"BL4-112\",\"nome\":\"Sala 112\",\"bloco\":\"BL4\",\"andar\":0,\"tipo\":\"SALA_DE_AULA\",\"localizacaoMapa\":\"sala-bl4-112\",\"ocupada\":false,\"aula\":null},{\"codigo\":\"BL4-113\",\"nome\":\"Sala 113\",\"bloco\":\"BL4\",\"andar\":0,\"tipo\":\"SALA_DE_AULA\",\"localizacaoMapa\":\"sala-bl4-113\",\"ocupada\":false,\"aula\":null},{\"codigo\":\"BL4-114\",\"nome\":\"Sala 114\",\"bloco\":\"BL4\",\"andar\":0,\"tipo\":\"SALA_DE_AULA\",\"localizacaoMapa\":\"sala-bl4-114\",\"ocupada\":false,\"aula\":null}]",
       "testes": [
         {
@@ -489,7 +489,7 @@
       "descricao": "**2.6** Registro não encontrado → 404.",
       "url": "http://localhost:3000/api/cursos/999999",
       "status": 404,
-      "ms": 1,
+      "ms": 2,
       "corpo": "{\"erro\":\"Curso não encontrado.\",\"codigo\":\"NAO_ENCONTRADO\"}",
       "testes": [
         {
@@ -509,7 +509,7 @@
       "descricao": "**2.6** 404 no formato padrão. Hoje vem só `{ erro }`, sem `codigo`.",
       "url": "http://localhost:3000/api/rota-que-nao-existe",
       "status": 404,
-      "ms": 1,
+      "ms": 0,
       "corpo": "{\"erro\":\"Rota não encontrada: GET /api/rota-que-nao-existe\",\"codigo\":\"ROTA_NAO_ENCONTRADA\"}",
       "testes": [
         {
@@ -524,16 +524,16 @@
     },
     {
       "pasta": "5. Erros gerais",
-      "nome": "JSON malformado",
+      "nome": "Escrita bloqueada (RNF08)",
       "metodo": "POST",
-      "descricao": "**2.6** Corpo inválido → 400 no formato padrão.\n\n⚠ Só faz sentido enquanto as rotas de escrita existirem (ver decisão sobre RNF08).",
+      "descricao": "**RNF08** A API é só de consulta: os dados entram pelo seed. Nenhuma requisição consegue criar, alterar ou apagar dados.\n\n**2.6** Rota de escrita inexistente → 404 no formato padrão.",
       "url": "http://localhost:3000/api/cursos",
-      "status": 400,
-      "ms": 15,
-      "corpo": "{\"erro\":\"O corpo da requisição não é um JSON válido.\",\"codigo\":\"PARAMETRO_INVALIDO\"}",
+      "status": 404,
+      "ms": 2,
+      "corpo": "{\"erro\":\"Rota não encontrada: POST /api/cursos\",\"codigo\":\"ROTA_NAO_ENCONTRADA\"}",
       "testes": [
         {
-          "nome": "status 400",
+          "nome": "status 404",
           "passou": true
         },
         {
