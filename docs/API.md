@@ -29,6 +29,9 @@ No front-end, a URL base vem da variável de ambiente e todas as chamadas passam
 | [`GET /api/aulas`](#get-apiaulas) | Aulas com filtros combinados |
 | [`GET /api/aulas/:id`](#get-apiaulasid) | Uma aula |
 | [`GET /api/horarios`](#get-apihorarios) | Registros de horário com os ids das relações |
+| [`GET /api/turmas`](#get-apiturmas) | Opções do filtro de turma |
+| [`GET /api/professores`](#get-apiprofessores) | Opções do filtro de professor |
+| [`GET /api/docs`](#get-apidocs) | Swagger UI (documentação navegável) |
 
 Ao criar uma rota, acrescente uma linha aqui e a seção dela em [Rotas](#rotas).
 
@@ -283,11 +286,58 @@ Registros de horário (linhas da tabela `aulas`) com os **ids** das relações. 
 
 ---
 
+### `GET /api/turmas`
+
+Turmas para popular o **filtro de turma**. O `nome` é o valor usado no parâmetro `turma` de [`GET /api/aulas`](#get-apiaulas).
+
+| Parâmetro | Tipo | Exemplo | Descrição |
+|---|---|---|---|
+| `curso` | sigla do curso | `SI` | Só turmas com aula daquele curso. |
+| `semestre` | inteiro de 1 a 20 | `6` | Só turmas daquele semestre. |
+
+**200** — ordenado por `semestre` e `nome`
+
+```json
+[
+  { "id": 7, "nome": "SI-6A", "semestre": 6 }
+]
+```
+
+Parâmetro desconhecido → `400`. **Erros:** `400`, `500`, `503`.
+
+---
+
+### `GET /api/professores`
+
+Professores para popular o **filtro de professor**. O parâmetro `professor` de [`GET /api/aulas`](#get-apiaulas) aceita o `nome` (ou parte dele).
+
+| Parâmetro | Tipo | Exemplo | Descrição |
+|---|---|---|---|
+| `curso` | sigla do curso | `SI` | Só professores com aula naquele curso. |
+
+**200** — ordenado por `nome`
+
+```json
+[
+  { "id": 2, "nome": "Prof. Carlos Almeida" }
+]
+```
+
+**Erros:** `400`, `500`, `503`.
+
+---
+
+### `GET /api/docs`
+
+Swagger UI com todas as rotas acima, para testar direto no navegador. A especificação OpenAPI fica em `GET /api/docs/openapi.json` (`src/docs/openapi.js`) — atualize-a junto com este arquivo.
+
+---
+
 ## Estrutura das rotas no código
 
 ```
 src/app.js              → app.use('/api', rotas)
-src/routes/index.js     → monta cada entidade: /health, /cursos, /salas, /aulas, /horarios
+src/routes/index.js     → monta cada entidade: /health, /cursos, /salas, /aulas, /horarios, /turmas, /professores, /docs
 src/routes/<entidade>.routes.js
 ```
 
@@ -296,7 +346,7 @@ src/routes/<entidade>.routes.js
 1. Crie ou edite `src/routes/<entidade>.routes.js` (somente `GET`).
 2. Monte a entidade em `src/routes/index.js` — **não** em `app.js`.
 3. Dentro do router, declare rotas fixas antes das com parâmetro (`/ocupacao` antes de `/:codigo`).
-4. Documente a rota aqui, no mesmo PR, e acrescente a linha dela no [Sumário](#sumário).
+4. Documente a rota aqui e em `src/docs/openapi.js`, no mesmo PR, e acrescente a linha dela no [Sumário](#sumário).
 
 ## Compatibilidade entre front e back
 

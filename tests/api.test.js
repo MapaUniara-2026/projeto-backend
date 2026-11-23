@@ -82,4 +82,21 @@ describe('API', () => {
     // A lista de salas não traz fotos (RNF04); elas só vêm no detalhe.
     for (const sala of salas) assert.equal('fotos' in sala, false)
   })
+
+  it('turmas e professores trazem só os campos das opções de filtro', async () => {
+    const [statusTurmas, turmas] = await api.pedir('/api/turmas?curso=SI')
+    const [statusProfessores, professores] = await api.pedir('/api/professores?curso=SI')
+    assert.deepEqual([statusTurmas, statusProfessores], [200, 200])
+    for (const turma of turmas) assert.deepEqual(Object.keys(turma).sort(), ['id', 'nome', 'semestre'])
+    for (const professor of professores) assert.deepEqual(Object.keys(professor).sort(), ['id', 'nome'])
+
+    const [status, corpo] = await api.pedir('/api/turmas?semestre=0')
+    assert.deepEqual([status, corpo.codigo], [400, 'PARAMETRO_INVALIDO'])
+  })
+
+  it('/api/docs serve o Swagger e o openapi.json', async () => {
+    const [status, spec] = await api.pedir('/api/docs/openapi.json')
+    assert.equal(status, 200)
+    assert.equal(spec.openapi, '3.0.3')
+  })
 })
