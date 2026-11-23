@@ -74,13 +74,29 @@ O CI aplica todas as migrações num banco limpo e falha se o `schema.prisma` ti
 
 Úteis: `npm run db:studio` (interface para ver os dados), `npm run db:reset` (zera o banco local).
 
+### Horários das aulas (dados reais)
+
+Os horários de SI, EC e IA ficam em `prisma/dados/horarios/` (um CSV por curso) e são gravados por `prisma/importar-horarios.js`:
+
+```bash
+npm run db:importar-horarios -- --simular   # mostra o que entra e o que fica de fora, sem gravar
+npm run db:importar-horarios                # grava (apaga e recria as aulas desses cursos)
+```
+
+- Local/DEV: o `npm run db:seed` já faz a importação.
+- QA/PRD: rode só a importação, com o `.env` apontando para o banco do ambiente. As salas do mapa precisam estar cadastradas antes.
+- Novo semestre: troque os CSVs, rode com `--simular`, confira o relatório e rode sem `--simular`.
+- As regras de conversão (sala do horário → sala do mapa, horário de término, grafias de professores) ficam no topo do script.
+
 ### Estrutura
 
 ```
 prisma/
 ├── schema.prisma        # modelo do banco (alinhar com o DER)
 ├── migrations/          # histórico de mudanças do banco
-└── seed.js              # dados de exemplo
+├── dados/horarios/      # horários reais (um CSV por curso)
+├── importar-horarios.js # grava os horários dos CSVs no banco
+└── seed.js              # dados para desenvolvimento local (chama a importação)
 src/
 ├── app.js               # configura o Express (usado pela Vercel)
 ├── local.js             # sobe o servidor localmente

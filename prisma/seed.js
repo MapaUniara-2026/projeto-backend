@@ -1,20 +1,15 @@
-// Dados de exemplo para desenvolvimento local: npm run db:seed
-// Não rode em QA/PRD. Pode rodar várias vezes: nada é duplicado.
+// Dados para desenvolvimento local: npm run db:seed
+// Não rode em QA/PRD (as fotos são de exemplo). Pode rodar várias vezes: nada é duplicado.
 //
 // Fontes (tarefa 1.3 — seed único):
 //  - Salas: inventário do térreo da Unidade 4 (projeto-frontend/src/data/andares/terreo/salas.js).
-//  - Aulas: dados de exemplo do front (projeto-frontend/src/data/aulas.js), os mesmos do PR #13.
+//  - Cursos e aulas: horários reais de 2026 (prisma/dados/horarios/), gravados por prisma/importar-horarios.js.
 //  - Modelo: schema do PR #5 (Sala, Imagem, Curso, Disciplina, Professor, Turma, Aula).
 import 'dotenv/config'
 import { prisma } from '../src/lib/prisma.js'
+import { importarHorarios } from './importar-horarios.js'
 
-// "19:00" -> Date. Colunas TIME guardam só a hora; o Prisma exige um Date, então usamos 1970-01-01 em UTC.
-const hora = (hhmm) => new Date(`1970-01-01T${hhmm}:00Z`)
-
-// RN03: antes de 12:00 é MATUTINO, de 12:00 a 17:59 é VESPERTINO, a partir de 18:00 é NOTURNO.
-const periodoDe = (hhmm) => (hhmm < '12:00' ? 'MATUTINO' : hhmm < '18:00' ? 'VESPERTINO' : 'NOTURNO')
-
-// Para tabelas sem campo único (imagem, disciplina, professor, turma): busca e, se não achar, cria.
+// Para tabelas sem campo único (ex.: imagem): busca e, se não achar, cria.
 async function garantir(modelo, dados) {
   return (await prisma[modelo].findFirst({ where: dados })) ?? prisma[modelo].create({ data: dados })
 }
@@ -64,53 +59,9 @@ for (const [codigo, vista, descricao] of imagens) {
 }
 
 // ---------- Dados acadêmicos (D2) ----------
-const CURSOS = { SI: 'Sistemas de Informação', EC: 'Engenharia de Computação', IA: 'Inteligência Artificial' }
-const curso = {}
-for (const [sigla, nome] of Object.entries(CURSOS)) {
-  curso[sigla] = await prisma.curso.upsert({ where: { sigla }, update: { nome }, create: { sigla, nome } })
-}
+// Cursos e aulas vêm dos CSVs de horários (as salas acima precisam existir antes).
+// Em QA/PRD, onde o seed não roda, a mesma importação é feita com: npm run db:importar-horarios
+await importarHorarios()
 
-// [sala, disciplina, curso, semestre do curso, professor, dia, início, término]
-// Turma = curso + semestre (ex.: SI-6A). Período sai da hora de início (RN03).
-const AULAS = [
-  ['BL4-104', 'Engenharia de Software II', 'SI', 6, 'Carlos Almeida', 'SEGUNDA', '19:00', '20:40'],
-  ['BL4-101', 'Banco de Dados', 'SI', 4, 'Marina Duarte', 'SEGUNDA', '08:00', '09:40'],
-  ['BL4-102', 'Palestra de Abertura', 'SI', 1, 'Carlos Almeida', 'SEGUNDA', '19:00', '20:40'],
-  ['BL4-103', 'Programação Web', 'SI', 4, 'Marina Duarte', 'SEGUNDA', '19:00', '22:40'],
-  ['BL4-103', 'Sistemas Operacionais', 'EC', 4, 'André Souza', 'TERCA', '14:00', '17:40'],
-  ['BL4-105', 'Visão Computacional', 'IA', 6, 'Helena Rocha', 'QUINTA', '14:00', '17:40'],
-  ['BL4-105', 'Física Experimental', 'EC', 2, 'Renato Lima', 'SEXTA', '08:00', '11:40'],
-  ['BL4-109', 'Cálculo II', 'EC', 3, 'Renato Lima', 'TERCA', '19:00', '20:40'],
-  ['BL4-110', 'Redes de Computadores', 'SI', 5, 'André Souza', 'TERCA', '21:00', '22:40'],
-  ['BL4-111', 'Aprendizado de Máquina', 'IA', 5, 'Helena Rocha', 'QUARTA', '19:00', '20:40'],
-  ['BL4-112', 'Estruturas de Dados', 'SI', 3, 'Paulo Mendes', 'QUINTA', '19:00', '20:40'],
-  ['BL4-113', 'Ética e Cidadania', 'IA', 2, 'Lúcia Prado', 'SEXTA', '19:00', '20:40'],
-  ['BL4-114', 'Desenho Técnico', 'EC', 2, 'Tiago Ferraz', 'QUARTA', '08:00', '09:40'],
-  ['BL4-114', 'Algoritmos', 'EC', 1, 'Paulo Mendes', 'SEGUNDA', '14:00', '15:40'],
-]
-
-for (const [codigoSala, nomeDisciplina, sigla, semestre, nomeProfessor, dia, inicio, fim] of AULAS) {
-  const disciplina = await garantir('disciplina', { nome: nomeDisciplina })
-  const professor = await garantir('professor', { nome: nomeProfessor })
-  const turma = await garantir('turma', { nome: `${sigla}-${semestre}A`, semestre })
-
-  const dados = {
-    salaId: sala[codigoSala].id,
-    cursoId: curso[sigla].id,
-    disciplinaId: disciplina.id,
-    professorId: professor.id,
-    turmaId: turma.id,
-    diaSemana: dia,
-    periodo: periodoDe(inicio),
-    horaInicio: hora(inicio),
-    horaTermino: hora(fim),
-  }
-  await prisma.aula.upsert({
-    where: { salaId_diaSemana_horaInicio: { salaId: dados.salaId, diaSemana: dia, horaInicio: dados.horaInicio } },
-    update: dados,
-    create: dados,
-  })
-}
-
-console.log(`Seed concluído ✅ (${salas.length} salas, ${imagens.length} imagens, ${AULAS.length} aulas)`)
+console.log(`Seed concluído ✅ (${salas.length} salas, ${imagens.length} imagens)`)
 await prisma.$disconnect()
