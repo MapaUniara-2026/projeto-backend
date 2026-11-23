@@ -3,7 +3,7 @@ import { Router } from 'express'
 import { prisma } from '../lib/prisma.js'
 import { ErroValidacao } from '../middlewares/erros.js'
 import { DIAS, agoraEmSaoPaulo, paraTime, validarOpcao } from '../lib/horarios.js'
-import { SELECT_AULA, formatarAula } from './aulas.routes.js'
+import { SELECT_AULA, formatarAula } from '../services/consultas-academicas.js'
 
 const router = Router()
 
