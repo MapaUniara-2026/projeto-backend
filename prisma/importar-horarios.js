@@ -6,7 +6,8 @@
 // O prisma/seed.js também chama esta importação.
 //
 // Pode rodar quantas vezes quiser: as aulas dos cursos dos CSVs são apagadas e recriadas a partir dos
-// arquivos, numa transação (se algo falhar, o banco fica como estava). As salas do mapa precisam existir antes.
+// arquivos, numa transação (se algo falhar, o banco fica como estava). O inventário de salas (prisma/dados/salas.json)
+// é sincronizado antes: salas novas são criadas e as antigas fora do inventário e sem aula são removidas.
 //
 // Formato dos CSVs (UTF-8, separador ";", 1ª linha = cabeçalho):
 //   Dia;Horário;Semestre;Sala;Disciplina;Professor;Compartilhada com
@@ -33,24 +34,47 @@ export const CURSOS = [
   { sigla: 'SI', nome: 'Sistemas de Informação', arquivo: 'horarios_sistemas_informacao.csv' },
 ]
 
-// Sala como aparece no horário -> código da sala no mapa (tabela salas, cadastrada pelo seed).
-// "Lab. 2" e "Lab. Inf. 2" são a mesma sala: a mesma aula aparece com os dois nomes em SI e EC.
-// "108" NÃO é a BL4-108, que no mapa é a Secretaria.
-const SALA_DO_MAPA = {
-  '109': 'BL4-109',
-  '112': 'BL4-112',
-  'Lab. Inf. 7': 'BL4-103',
-  'Lab. Inf. 2': 'BL4-105',
-  'Lab. 2': 'BL4-105',
+// Inventário das salas da Unidade 4 (térreo e 1º, 2º e 3º andares), conferido com as plantas do front
+// (projeto-frontend/tools/plantas). O código é o mesmo `id` das áreas clicáveis do mapa.
+export const SALAS = JSON.parse(readFileSync(new URL('./dados/salas.json', import.meta.url), 'utf8'))
+
+// Grafias do horário -> código da sala no inventário. Números de sala ("211", "315A") e "T<n>" viram BL4-<nome>.
+// "Lab. 2" e "Lab. Inf. 2" são a mesma sala (a mesma aula aparece com os dois nomes em SI e EC).
+// "Lab. Inf. 3/4/5" são os "Lab. 3/4/5" do 1º andar. "Lab. 1" NÃO é o "Lab. Inf. 1": há aulas nos dois no mesmo horário.
+// A CONFIRMAR com a coordenação: L. Fís. Exp. = Lab. Física (1º andar). "Lab. 1", "Lab. Eletrônica" e
+// "Lab. Elet. 1" não aparecem nas plantas e ficam como "pendente" (fora do mapa) até alguém indicar onde ficam.
+const SALA_ALIAS = {
+  'Lab. Inf. 1': 'BL4-LAB-INF-1',
+  'Lab. Inf. 2': 'BL4-LAB-INF-2',
+  'Lab. 2': 'BL4-LAB-INF-2',
+  'Lab. Inf. 7': 'BL4-LAB-INF-7',
+  'Lab. 3': 'BL4-LAB-3',
+  'Lab. Inf. 3': 'BL4-LAB-3',
+  'Lab. 4': 'BL4-LAB-4',
+  'Lab. Inf. 4': 'BL4-LAB-4',
+  'Lab. 5': 'BL4-LAB-5',
+  'Lab. Inf. 5': 'BL4-LAB-5',
+  'L. Fís. Exp.': 'BL4-LAB-FISICA',
+  'Lab. 1': 'BL4-LAB-1',
+  'Lab. Eletrônica': 'BL4-LAB-ELETRONICA',
+  'Lab. Elet. 1': 'BL4-LAB-ELETRONICA',
 }
-// Salas fora da lista acima são criadas com localizacaoMapa "pendente" até a planta do andar ser importada.
-// Andar provisório: 2xx = 1º andar; laboratórios e salas sem número ficam no térreo até confirmar.
+
+// Sala como aparece no horário -> código da sala (ex.: "211" -> BL4-211; "Lab. 2" -> BL4-LAB-INF-2).
+export function codigoDaSala(nome) {
+  const n = nome.trim()
+  if (SALA_ALIAS[n]) return SALA_ALIAS[n]
+  if (/^(\d{3}[A-Z]?|T\d+)$/i.test(n)) return `BL4-${n.toUpperCase()}`
+  return `BL4-${n.toUpperCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^A-Z0-9]+/g, '-').replace(/^-|-$/g, '')}`.slice(0, 20)
+}
+
+// Sala do horário que não está no inventário: criada com localizacaoMapa "pendente" (não aparece no mapa).
 const salaSemPlanta = (codigo) => ({
   codigo,
-  nome: /^\d+$/.test(codigo) ? `Sala ${codigo}` : codigo,
+  nome: codigo.replace(/^BL4-/, ''),
   bloco: 'BL4',
-  andar: /^2\d\d$/.test(codigo) ? 1 : 0,
-  tipo: /^(lab|l\.)/i.test(codigo) ? 'LABORATORIO' : 'SALA_DE_AULA',
+  andar: /^BL4-[1-3]\d\d/.test(codigo) ? Number(codigo[4]) : 0,
+  tipo: /LAB/.test(codigo) ? 'LABORATORIO' : 'SALA_DE_AULA',
   localizacaoMapa: 'pendente',
 })
 
@@ -141,7 +165,6 @@ function lerCsvs() {
   return linhas
 }
 
-const codigoDaSala = (sala) => SALA_DO_MAPA[sala] ?? sala
 
 // Junta as linhas que são a mesma aula: mesmo dia, início e professor em mais de um curso (aula compartilhada).
 // Cada grupo guarda as salas do horário e quais já foram usadas pela própria aula.
@@ -171,13 +194,13 @@ export async function importarHorarios({ simular = false, log = console.log } = 
         curso[sigla] = await tx.curso.upsert({ where: { sigla }, update: { nome }, create: { sigla, nome } })
       }
 
-      // Salas: as do mapa precisam existir; as que não estão na planta são criadas como "pendente".
+      // Salas: o inventário é sincronizado (cria ou atualiza); salas do horário fora dele são criadas como "pendente".
+      for (const s of SALAS) {
+        const dados = { ...s, bloco: 'BL4' }
+        await tx.sala.upsert({ where: { codigo: s.codigo }, update: dados, create: dados })
+      }
       const codigos = [...new Set(linhas.flatMap((a) => a.grupo.salas))]
       const existentes = new Map((await tx.sala.findMany({ where: { codigo: { in: codigos } } })).map((s) => [s.codigo, s]))
-      const faltando = Object.values(SALA_DO_MAPA).filter((c) => codigos.includes(c) && !existentes.has(c))
-      if (faltando.length) {
-        throw new Error(`Salas do mapa não cadastradas: ${[...new Set(faltando)].join(', ')}. Cadastre as salas antes (npm run db:seed em DEV/local).`)
-      }
       for (const codigo of codigos.filter((c) => !existentes.has(c))) {
         existentes.set(codigo, await tx.sala.create({ data: salaSemPlanta(codigo) }))
         resumo.salasCriadas.push(codigo)
@@ -243,6 +266,13 @@ export async function importarHorarios({ simular = false, log = console.log } = 
       for (const modelo of ['disciplina', 'professor', 'turma']) {
         await tx[modelo].deleteMany({ where: { aulas: { none: {} } } })
       }
+      // Fotos de exemplo (placehold.co) são recriadas pelo seed; removê-las evita foto de exemplo presa a um código
+      // que mudou de sala. Fotos reais (Supabase Storage) não são tocadas.
+      await tx.imagem.deleteMany({ where: { url: { startsWith: 'https://placehold.co/' } } })
+      // Salas que não estão no inventário e ficaram sem aula (cadastros antigos ou provisórios). Fotos vão junto.
+      const inventario = SALAS.map((s) => s.codigo)
+      const removidas = await tx.sala.deleteMany({ where: { codigo: { notIn: inventario }, aulas: { none: {} } } })
+      resumo.salasRemovidas = removidas.count
       if (simular) throw new Simulacao()
     }, { timeout: 120_000 })
   } catch (e) {
@@ -252,6 +282,7 @@ export async function importarHorarios({ simular = false, log = console.log } = 
   const total = Object.values(resumo.porCurso).reduce((s, n) => s + n, 0)
   const porCurso = CURSOS.map((c) => `${c.sigla} ${resumo.porCurso[c.sigla] ?? 0}`).join(', ')
   log(`${simular ? 'Simulação (nada foi gravado)' : 'Horários importados ✅'}: ${total} aulas de ${linhas.length} linhas dos CSVs (${porCurso})`)
+  if (resumo.salasRemovidas) log(`  Salas fora do inventário e sem aula ${simular ? 'que seriam removidas' : 'removidas'}: ${resumo.salasRemovidas}`)
   if (resumo.salasCriadas.length) log(`  Salas sem planta ${simular ? 'que seriam criadas' : 'criadas'} (${resumo.salasCriadas.length}): ${resumo.salasCriadas.join(', ')}`)
   if (recusadas.length) log(`  Não gravadas (${recusadas.length}):\n    - ${recusadas.join('\n    - ')}`)
   if (avisos.length) log(`  Avisos (${avisos.length}):\n    - ${avisos.join('\n    - ')}`)

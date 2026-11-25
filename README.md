@@ -10,6 +10,7 @@ API do sistema de alocação acadêmica (salas, cursos, turmas, professores e ho
 
 > 🔗 Front-end: [MapaUniara-2026/projeto-frontend](https://github.com/MapaUniara-2026/projeto-frontend)
 > 📁 Modelagem (UML, DER, requisitos): **[link da pasta do Drive]**
+> 📘 **Documentação dos endpoints: [docs/API.md](docs/API.md)**
 
 ---
 
@@ -108,8 +109,11 @@ src/
 ├── middlewares/erros.js # padrão de erros da API (ver seção 7)
 ├── services/            # consulta de aulas com filtros (usada por /api/aulas)
 ├── validators/          # regras de horários: intervalo válido e conflitos (ver seção 7.4)
-└── routes/              # uma rota por entidade (cursos.routes.js é o modelo)
+└── routes/
+    ├── index.js         # monta todas as rotas sob /api (adicione novas entidades aqui)
+    └── *.routes.js      # uma rota por entidade
 tests/                   # testes (node:test) — npm test
+docs/API.md              # documentação dos endpoints (atualizar no mesmo PR que alterar uma rota)
 scripts/vercel-build.js  # build na Vercel (gera o client + migra nas branches de ambiente)
 ```
 
@@ -218,9 +222,9 @@ Todo erro responde com o mesmo formato:
 
 | `codigo` | HTTP | Quando |
 |---|---|---|
-| `PARAMETRO_INVALIDO` | 400 | Parâmetro, query ou corpo inválido (inclui JSON malformado) |
+| `PARAMETRO_INVALIDO` | 400 | Parâmetro ou query inválido |
 | `NAO_ENCONTRADO` | 404 | O registro pedido não existe |
-| `ROTA_NAO_ENCONTRADA` | 404 | A URL/método não existe na API |
+| `ROTA_NAO_ENCONTRADA` | 404 | A URL/método não existe na API (inclui qualquer `POST`, `PUT`, `PATCH` ou `DELETE`, ver 7.5) |
 | `CONFLITO` | 409 | Valor duplicado ou registro ainda em uso (regras do banco, RNF11) |
 | `ERRO_INTERNO` | 500 | Erro inesperado (detalhes só no log do servidor) |
 | `BANCO_INDISPONIVEL` | 503 | Não foi possível falar com o banco (fora do ar, Supabase pausado) — vale tentar de novo |
@@ -262,12 +266,16 @@ Cada horário é uma linha da tabela `aulas`, com os ids das relações. Para a 
 |---|---|
 | `GET /api/horarios` | Lista os horários. Filtros opcionais: `?dia=SEGUNDA`, `?salaId=1`, `?turmaId=1` |
 | `GET /api/horarios/:id` | Detalha um horário (404 se não existir) |
-| `POST /api/horarios` | Cadastra `{ salaId, cursoId, disciplinaId, professorId, turmaId, diaSemana, horaInicio, horaTermino, periodo? }` (sem `periodo`, vale a faixa da `horaInicio`) |
 
-Regras do cadastro (`src/validators/horarios.js` e `src/validators/conflitos-horarios.js`):
+A API não cadastra horários (ver 7.5). As regras de intervalo e de sobreposição ficam em `src/validators/horarios.js` e `src/validators/conflitos-horarios.js`, prontas para quem voltar a gravar dados:
 
-- `diaSemana` de segunda a sexta e horas em `HH:MM`, com `horaInicio` antes de `horaTermino` — senão **400**.
-- Sala, curso, disciplina, professor ou turma que não existe — **404**.
-- **409 CONFLITO** se a sala já tiver aula sobreposta no mesmo dia, ou se a turma já tiver aula sobreposta em qualquer sala. Dois horários se sobrepõem quando `inicioA < fimB` e `inicioB < fimA`; aulas consecutivas (uma termina 20:40, a outra começa 20:40) não conflitam.
+- `diaSemana` de segunda a sexta e horas em `HH:MM`, com `horaInicio` antes de `horaTermino`.
+- Sala ou turma com aula sobreposta no mesmo dia é conflito. Dois horários se sobrepõem quando `inicioA < fimB` e `inicioB < fimA`; aulas consecutivas (uma termina 20:40, a outra começa 20:40) não conflitam.
 
-O banco só impede duas aulas com a **mesma hora de início** (`@@unique`); a sobreposição parcial é verificada pela API antes de gravar.
+O banco só impede duas aulas com a **mesma hora de início** (`@@unique`); a sobreposição parcial depende dessas regras.
+
+### 7.5 API só de consulta (RNF08)
+
+O sistema é de consulta: **não existe nenhuma rota de escrita** (`POST`, `PUT`, `PATCH`, `DELETE`). Qualquer tentativa responde **404 `ROTA_NAO_ENCONTRADA`** e nada é alterado. Os dados entram pelo seed (`npm run db:seed`), revisado no Git como qualquer código. Por isso a API também não lê corpo de requisição (sem `express.json()`).
+
+Se um dia o time precisar de escrita pela API, a alternativa prevista no plano é exigir um cabeçalho com uma chave secreta guardada só na Vercel.

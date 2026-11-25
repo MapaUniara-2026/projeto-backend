@@ -1,0 +1,541 @@
+[
+ {
+  "codigo": "BL4-T6",
+  "nome": "Sala T6",
+  "tipo": "SALA_DE_AULA",
+  "andar": 0,
+  "localizacaoMapa": "terreo#BL4-T6"
+ },
+ {
+  "codigo": "BL4-T7",
+  "nome": "Sala T7",
+  "tipo": "SALA_DE_AULA",
+  "andar": 0,
+  "localizacaoMapa": "terreo#BL4-T7"
+ },
+ {
+  "codigo": "BL4-T3",
+  "nome": "Sala T3",
+  "tipo": "SALA_DE_AULA",
+  "andar": 0,
+  "localizacaoMapa": "terreo#BL4-T3"
+ },
+ {
+  "codigo": "BL4-AUDITORIO",
+  "nome": "Auditório",
+  "tipo": "AUDITORIO",
+  "andar": 0,
+  "localizacaoMapa": "terreo#BL4-AUDITORIO"
+ },
+ {
+  "codigo": "BL4-LAB-INF-7",
+  "nome": "Lab. Inf. 7",
+  "tipo": "LABORATORIO",
+  "andar": 0,
+  "localizacaoMapa": "terreo#BL4-LAB-INF-7"
+ },
+ {
+  "codigo": "BL4-LAB-INF-2",
+  "nome": "Lab. Inf. 2",
+  "tipo": "LABORATORIO",
+  "andar": 0,
+  "localizacaoMapa": "terreo#BL4-LAB-INF-2"
+ },
+ {
+  "codigo": "BL4-BIBLIOTECA",
+  "nome": "Biblioteca",
+  "tipo": "SERVICO",
+  "andar": 0,
+  "localizacaoMapa": "terreo#BL4-BIBLIOTECA"
+ },
+ {
+  "codigo": "BL4-RECEPCAO",
+  "nome": "Recepção",
+  "tipo": "SERVICO",
+  "andar": 0,
+  "localizacaoMapa": "terreo#BL4-RECEPCAO"
+ },
+ {
+  "codigo": "BL4-BANHEIROS-T1",
+  "nome": "Banheiros",
+  "tipo": "SERVICO",
+  "andar": 0,
+  "localizacaoMapa": "terreo#BL4-BANHEIROS-T1"
+ },
+ {
+  "codigo": "BL4-CANTINA",
+  "nome": "Cantina",
+  "tipo": "SERVICO",
+  "andar": 0,
+  "localizacaoMapa": "terreo#BL4-CANTINA"
+ },
+ {
+  "codigo": "BL4-BANHEIROS-T2",
+  "nome": "Banheiros",
+  "tipo": "SERVICO",
+  "andar": 0,
+  "localizacaoMapa": "terreo#BL4-BANHEIROS-T2"
+ },
+ {
+  "codigo": "BL4-XEROX",
+  "nome": "Xerox",
+  "tipo": "SERVICO",
+  "andar": 0,
+  "localizacaoMapa": "terreo#BL4-XEROX"
+ },
+ {
+  "codigo": "BL4-SECRETARIA",
+  "nome": "Secretaria",
+  "tipo": "SERVICO",
+  "andar": 0,
+  "localizacaoMapa": "terreo#BL4-SECRETARIA"
+ },
+ {
+  "codigo": "BL4-COORD-ENG-ELET",
+  "nome": "Coord. Eng. Elétrica",
+  "tipo": "SERVICO",
+  "andar": 0,
+  "localizacaoMapa": "terreo#BL4-COORD-ENG-ELET"
+ },
+ {
+  "codigo": "BL4-COORD-ENG-COMP",
+  "nome": "Coord. Eng. Computação",
+  "tipo": "SERVICO",
+  "andar": 0,
+  "localizacaoMapa": "terreo#BL4-COORD-ENG-COMP"
+ },
+ {
+  "codigo": "BL4-ODONTO-1",
+  "nome": "Odonto",
+  "tipo": "SERVICO",
+  "andar": 0,
+  "localizacaoMapa": "terreo#BL4-ODONTO-1"
+ },
+ {
+  "codigo": "BL4-ESTERILIZACAO",
+  "nome": "Central de Esterilização",
+  "tipo": "SERVICO",
+  "andar": 0,
+  "localizacaoMapa": "terreo#BL4-ESTERILIZACAO"
+ },
+ {
+  "codigo": "BL4-CLINICA-II",
+  "nome": "Clínica II",
+  "tipo": "SERVICO",
+  "andar": 0,
+  "localizacaoMapa": "terreo#BL4-CLINICA-II"
+ },
+ {
+  "codigo": "BL4-MESTRADO",
+  "nome": "Mestrado",
+  "tipo": "SERVICO",
+  "andar": 0,
+  "localizacaoMapa": "terreo#BL4-MESTRADO"
+ },
+ {
+  "codigo": "BL4-ODONTO-2",
+  "nome": "Odonto",
+  "tipo": "SERVICO",
+  "andar": 0,
+  "localizacaoMapa": "terreo#BL4-ODONTO-2"
+ },
+ {
+  "codigo": "BL4-LAB-AGRONOMIA",
+  "nome": "Lab. Agronomia",
+  "tipo": "LABORATORIO",
+  "andar": 1,
+  "localizacaoMapa": "1-andar#BL4-LAB-AGRONOMIA"
+ },
+ {
+  "codigo": "BL4-119",
+  "nome": "Sala 119",
+  "tipo": "SALA_DE_AULA",
+  "andar": 1,
+  "localizacaoMapa": "1-andar#BL4-119"
+ },
+ {
+  "codigo": "BL4-122",
+  "nome": "Sala 122",
+  "tipo": "SALA_DE_AULA",
+  "andar": 1,
+  "localizacaoMapa": "1-andar#BL4-122"
+ },
+ {
+  "codigo": "BL4-120",
+  "nome": "Sala 120",
+  "tipo": "SALA_DE_AULA",
+  "andar": 1,
+  "localizacaoMapa": "1-andar#BL4-120"
+ },
+ {
+  "codigo": "BL4-LAB-5",
+  "nome": "Lab. 5",
+  "tipo": "LABORATORIO",
+  "andar": 1,
+  "localizacaoMapa": "1-andar#BL4-LAB-5"
+ },
+ {
+  "codigo": "BL4-118",
+  "nome": "Sala 118",
+  "tipo": "SALA_DE_AULA",
+  "andar": 1,
+  "localizacaoMapa": "1-andar#BL4-118"
+ },
+ {
+  "codigo": "BL4-LAB-3",
+  "nome": "Lab. 3",
+  "tipo": "LABORATORIO",
+  "andar": 1,
+  "localizacaoMapa": "1-andar#BL4-LAB-3"
+ },
+ {
+  "codigo": "BL4-LAB-4",
+  "nome": "Lab. 4",
+  "tipo": "LABORATORIO",
+  "andar": 1,
+  "localizacaoMapa": "1-andar#BL4-LAB-4"
+ },
+ {
+  "codigo": "BL4-LAB-QUIMICA",
+  "nome": "Lab. Química",
+  "tipo": "LABORATORIO",
+  "andar": 1,
+  "localizacaoMapa": "1-andar#BL4-LAB-QUIMICA"
+ },
+ {
+  "codigo": "BL4-LAB-FISICA",
+  "nome": "Lab. Física",
+  "tipo": "LABORATORIO",
+  "andar": 1,
+  "localizacaoMapa": "1-andar#BL4-LAB-FISICA"
+ },
+ {
+  "codigo": "BL4-BANHEIROS-1A",
+  "nome": "Banheiros",
+  "tipo": "SERVICO",
+  "andar": 1,
+  "localizacaoMapa": "1-andar#BL4-BANHEIROS-1A"
+ },
+ {
+  "codigo": "BL4-112",
+  "nome": "Sala 112",
+  "tipo": "SALA_DE_AULA",
+  "andar": 1,
+  "localizacaoMapa": "1-andar#BL4-112"
+ },
+ {
+  "codigo": "BL4-111",
+  "nome": "Sala 111",
+  "tipo": "SALA_DE_AULA",
+  "andar": 1,
+  "localizacaoMapa": "1-andar#BL4-111"
+ },
+ {
+  "codigo": "BL4-CPD",
+  "nome": "CPD",
+  "tipo": "SERVICO",
+  "andar": 1,
+  "localizacaoMapa": "1-andar#BL4-CPD"
+ },
+ {
+  "codigo": "BL4-LAB-INF-1",
+  "nome": "Lab. Inf. 1",
+  "tipo": "LABORATORIO",
+  "andar": 1,
+  "localizacaoMapa": "1-andar#BL4-LAB-INF-1"
+ },
+ {
+  "codigo": "BL4-BANHEIROS-1B",
+  "nome": "Banheiros",
+  "tipo": "SERVICO",
+  "andar": 1,
+  "localizacaoMapa": "1-andar#BL4-BANHEIROS-1B"
+ },
+ {
+  "codigo": "BL4-104",
+  "nome": "Sala 104",
+  "tipo": "SALA_DE_AULA",
+  "andar": 1,
+  "localizacaoMapa": "1-andar#BL4-104"
+ },
+ {
+  "codigo": "BL4-COORD-ADMIN-1",
+  "nome": "Coord. Administração",
+  "tipo": "SERVICO",
+  "andar": 1,
+  "localizacaoMapa": "1-andar#BL4-COORD-ADMIN-1"
+ },
+ {
+  "codigo": "BL4-SALA-PROFESSORES",
+  "nome": "Sala dos Professores",
+  "tipo": "SERVICO",
+  "andar": 1,
+  "localizacaoMapa": "1-andar#BL4-SALA-PROFESSORES"
+ },
+ {
+  "codigo": "BL4-106",
+  "nome": "Sala 106",
+  "tipo": "SALA_DE_AULA",
+  "andar": 1,
+  "localizacaoMapa": "1-andar#BL4-106"
+ },
+ {
+  "codigo": "BL4-105",
+  "nome": "Sala 105",
+  "tipo": "SALA_DE_AULA",
+  "andar": 1,
+  "localizacaoMapa": "1-andar#BL4-105"
+ },
+ {
+  "codigo": "BL4-COORD-ADMIN-2",
+  "nome": "Coord. Administração",
+  "tipo": "SERVICO",
+  "andar": 1,
+  "localizacaoMapa": "1-andar#BL4-COORD-ADMIN-2"
+ },
+ {
+  "codigo": "BL4-108",
+  "nome": "Sala 108",
+  "tipo": "SALA_DE_AULA",
+  "andar": 1,
+  "localizacaoMapa": "1-andar#BL4-108"
+ },
+ {
+  "codigo": "BL4-109",
+  "nome": "Sala 109",
+  "tipo": "SALA_DE_AULA",
+  "andar": 1,
+  "localizacaoMapa": "1-andar#BL4-109"
+ },
+ {
+  "codigo": "BL4-110",
+  "nome": "Sala 110",
+  "tipo": "SALA_DE_AULA",
+  "andar": 1,
+  "localizacaoMapa": "1-andar#BL4-110"
+ },
+ {
+  "codigo": "BL4-102",
+  "nome": "Sala 102",
+  "tipo": "SALA_DE_AULA",
+  "andar": 1,
+  "localizacaoMapa": "1-andar#BL4-102"
+ },
+ {
+  "codigo": "BL4-103",
+  "nome": "Sala 103",
+  "tipo": "SALA_DE_AULA",
+  "andar": 1,
+  "localizacaoMapa": "1-andar#BL4-103"
+ },
+ {
+  "codigo": "BL4-221",
+  "nome": "Sala 221",
+  "tipo": "SALA_DE_AULA",
+  "andar": 2,
+  "localizacaoMapa": "2-andar#BL4-221"
+ },
+ {
+  "codigo": "BL4-222",
+  "nome": "Sala 222",
+  "tipo": "SALA_DE_AULA",
+  "andar": 2,
+  "localizacaoMapa": "2-andar#BL4-222"
+ },
+ {
+  "codigo": "BL4-219",
+  "nome": "Sala 219",
+  "tipo": "SALA_DE_AULA",
+  "andar": 2,
+  "localizacaoMapa": "2-andar#BL4-219"
+ },
+ {
+  "codigo": "BL4-220",
+  "nome": "Sala 220",
+  "tipo": "SALA_DE_AULA",
+  "andar": 2,
+  "localizacaoMapa": "2-andar#BL4-220"
+ },
+ {
+  "codigo": "BL4-217",
+  "nome": "Sala 217",
+  "tipo": "SALA_DE_AULA",
+  "andar": 2,
+  "localizacaoMapa": "2-andar#BL4-217"
+ },
+ {
+  "codigo": "BL4-218",
+  "nome": "Sala 218",
+  "tipo": "SALA_DE_AULA",
+  "andar": 2,
+  "localizacaoMapa": "2-andar#BL4-218"
+ },
+ {
+  "codigo": "BL4-215A",
+  "nome": "Sala 215A",
+  "tipo": "SALA_DE_AULA",
+  "andar": 2,
+  "localizacaoMapa": "2-andar#BL4-215A"
+ },
+ {
+  "codigo": "BL4-216",
+  "nome": "Sala 216",
+  "tipo": "SALA_DE_AULA",
+  "andar": 2,
+  "localizacaoMapa": "2-andar#BL4-216"
+ },
+ {
+  "codigo": "BL4-215B",
+  "nome": "Sala 215B",
+  "tipo": "SALA_DE_AULA",
+  "andar": 2,
+  "localizacaoMapa": "2-andar#BL4-215B"
+ },
+ {
+  "codigo": "BL4-214A",
+  "nome": "Sala 214A",
+  "tipo": "SALA_DE_AULA",
+  "andar": 2,
+  "localizacaoMapa": "2-andar#BL4-214A"
+ },
+ {
+  "codigo": "BL4-213A",
+  "nome": "Sala 213A",
+  "tipo": "SALA_DE_AULA",
+  "andar": 2,
+  "localizacaoMapa": "2-andar#BL4-213A"
+ },
+ {
+  "codigo": "BL4-213B",
+  "nome": "Sala 213B",
+  "tipo": "SALA_DE_AULA",
+  "andar": 2,
+  "localizacaoMapa": "2-andar#BL4-213B"
+ },
+ {
+  "codigo": "BL4-214B",
+  "nome": "Sala 214B",
+  "tipo": "SALA_DE_AULA",
+  "andar": 2,
+  "localizacaoMapa": "2-andar#BL4-214B"
+ },
+ {
+  "codigo": "BL4-BANHEIROS-2",
+  "nome": "Banheiros",
+  "tipo": "SERVICO",
+  "andar": 2,
+  "localizacaoMapa": "2-andar#BL4-BANHEIROS-2"
+ },
+ {
+  "codigo": "BL4-212",
+  "nome": "Sala 212",
+  "tipo": "SALA_DE_AULA",
+  "andar": 2,
+  "localizacaoMapa": "2-andar#BL4-212"
+ },
+ {
+  "codigo": "BL4-211",
+  "nome": "Sala 211",
+  "tipo": "SALA_DE_AULA",
+  "andar": 2,
+  "localizacaoMapa": "2-andar#BL4-211"
+ },
+ {
+  "codigo": "BL4-321",
+  "nome": "Sala 321",
+  "tipo": "SALA_DE_AULA",
+  "andar": 3,
+  "localizacaoMapa": "3-andar#BL4-321"
+ },
+ {
+  "codigo": "BL4-322",
+  "nome": "Sala 322",
+  "tipo": "SALA_DE_AULA",
+  "andar": 3,
+  "localizacaoMapa": "3-andar#BL4-322"
+ },
+ {
+  "codigo": "BL4-319",
+  "nome": "Sala 319",
+  "tipo": "SALA_DE_AULA",
+  "andar": 3,
+  "localizacaoMapa": "3-andar#BL4-319"
+ },
+ {
+  "codigo": "BL4-320",
+  "nome": "Sala 320",
+  "tipo": "SALA_DE_AULA",
+  "andar": 3,
+  "localizacaoMapa": "3-andar#BL4-320"
+ },
+ {
+  "codigo": "BL4-317",
+  "nome": "Sala 317",
+  "tipo": "SALA_DE_AULA",
+  "andar": 3,
+  "localizacaoMapa": "3-andar#BL4-317"
+ },
+ {
+  "codigo": "BL4-318A",
+  "nome": "Sala 318A",
+  "tipo": "SALA_DE_AULA",
+  "andar": 3,
+  "localizacaoMapa": "3-andar#BL4-318A"
+ },
+ {
+  "codigo": "BL4-315A",
+  "nome": "Sala 315A",
+  "tipo": "SALA_DE_AULA",
+  "andar": 3,
+  "localizacaoMapa": "3-andar#BL4-315A"
+ },
+ {
+  "codigo": "BL4-316",
+  "nome": "Sala 316",
+  "tipo": "SALA_DE_AULA",
+  "andar": 3,
+  "localizacaoMapa": "3-andar#BL4-316"
+ },
+ {
+  "codigo": "BL4-315B",
+  "nome": "Sala 315B",
+  "tipo": "SALA_DE_AULA",
+  "andar": 3,
+  "localizacaoMapa": "3-andar#BL4-315B"
+ },
+ {
+  "codigo": "BL4-313",
+  "nome": "Sala 313",
+  "tipo": "SALA_DE_AULA",
+  "andar": 3,
+  "localizacaoMapa": "3-andar#BL4-313"
+ },
+ {
+  "codigo": "BL4-314",
+  "nome": "Sala 314",
+  "tipo": "SALA_DE_AULA",
+  "andar": 3,
+  "localizacaoMapa": "3-andar#BL4-314"
+ },
+ {
+  "codigo": "BL4-BANHEIROS-3",
+  "nome": "Banheiros",
+  "tipo": "SERVICO",
+  "andar": 3,
+  "localizacaoMapa": "3-andar#BL4-BANHEIROS-3"
+ },
+ {
+  "codigo": "BL4-312",
+  "nome": "Sala 312",
+  "tipo": "SALA_DE_AULA",
+  "andar": 3,
+  "localizacaoMapa": "3-andar#BL4-312"
+ },
+ {
+  "codigo": "BL4-311",
+  "nome": "Sala 311",
+  "tipo": "SALA_DE_AULA",
+  "andar": 3,
+  "localizacaoMapa": "3-andar#BL4-311"
+ }
+]

@@ -2,11 +2,7 @@ import 'dotenv/config'
 import cors from 'cors'
 import express from 'express'
 import { rotaNaoEncontrada, tratarErros } from './middlewares/erros.js'
-import aulasRoutes from './routes/aulas.routes.js'
-import cursosRoutes from './routes/cursos.routes.js'
-import healthRoutes from './routes/health.routes.js'
-import salasRoutes from './routes/salas.routes.js'
-import horariosRoutes from './routes/horarios.routes.js'
+import rotas from './routes/index.js'
 
 const app = express()
 
@@ -18,14 +14,10 @@ const origens = (process.env.CORS_ORIGIN ?? 'http://localhost:5173')
   .filter(Boolean)
   .map((o) => new RegExp(`^${o.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '[a-z0-9-]+')}$`))
 app.use(cors({ origin: origens }))
-app.use(express.json())
+// Sem express.json(): a API é só de consulta (RNF08) e nenhuma rota lê corpo de requisição.
 
 app.get('/', (req, res) => res.json({ mensagem: 'API do Projeto da Faculdade' }))
-app.use('/api/health', healthRoutes)
-app.use('/api/cursos', cursosRoutes)
-app.use('/api/salas', salasRoutes)
-app.use('/api/aulas', aulasRoutes)
-app.use('/api/horarios', horariosRoutes)
+app.use('/api', rotas) // todas as rotas da API: src/routes/index.js
 
 app.use(rotaNaoEncontrada)
 app.use(tratarErros)
